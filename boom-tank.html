@@ -1,0 +1,865 @@
+<!DOCTYPE html>
+<html lang="he">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BOOM TANK — זירת לחימה סימולטיבית של טנקים</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+  <style>
+    :root {
+      --dark: #0d0d0d;
+      --orange: #ff4500;
+      --gold: #ffd700;
+      --light-text: #f5f5f5;
+      --muted: rgba(245, 245, 245, 0.7);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      background: var(--dark);
+      color: var(--light-text);
+      font-family: 'Inter', sans-serif;
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    /* ============ HERO SECTION ============ */
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+      background: linear-gradient(135deg, #0d0d0d 0%, #1a1a1a 100%);
+    }
+
+    .hero-background {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      top: 0;
+      left: 0;
+      z-index: 1;
+    }
+
+    .smoke {
+      position: absolute;
+      border-radius: 50%;
+      opacity: 0.15;
+      filter: blur(40px);
+      background: var(--orange);
+    }
+
+    .smoke-1 { width: 300px; height: 300px; top: 20%; left: 10%; animation: floatSmoke1 8s ease-in-out infinite; }
+    .smoke-2 { width: 400px; height: 400px; top: 40%; right: 5%; animation: floatSmoke2 10s ease-in-out infinite; }
+    .smoke-3 { width: 250px; height: 250px; bottom: 10%; left: 30%; animation: floatSmoke3 12s ease-in-out infinite; }
+
+    @keyframes floatSmoke1 {
+      0%, 100% { transform: translate(0, 0); }
+      50% { transform: translate(30px, -40px); }
+    }
+
+    @keyframes floatSmoke2 {
+      0%, 100% { transform: translate(0, 0); }
+      50% { transform: translate(-40px, 30px); }
+    }
+
+    @keyframes floatSmoke3 {
+      0%, 100% { transform: translate(0, 0); }
+      50% { transform: translate(20px, 40px); }
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 2;
+      text-align: center;
+      max-width: 900px;
+      padding: 40px;
+    }
+
+    .hero h1 {
+      font-family: 'Orbitron', monospace;
+      font-size: clamp(48px, 12vw, 120px);
+      font-weight: 900;
+      margin-bottom: 20px;
+      color: var(--gold);
+      text-shadow: 0 0 20px var(--orange), 0 0 40px rgba(255, 69, 0, 0.5);
+      letter-spacing: 3px;
+    }
+
+    .tank-cannon {
+      width: 100%;
+      max-width: 200px;
+      height: auto;
+      margin: 30px auto;
+      filter: drop-shadow(0 0 15px var(--orange));
+    }
+
+    .hero .subtitle {
+      font-size: 18px;
+      color: var(--muted);
+      margin-bottom: 40px;
+      letter-spacing: 1px;
+    }
+
+    .btn-primary {
+      display: inline-block;
+      padding: 16px 48px;
+      background: linear-gradient(135deg, var(--orange), #ff6b00);
+      color: #000;
+      border: none;
+      border-radius: 50px;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 0 30px rgba(255, 69, 0, 0.4);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      font-family: 'Orbitron', monospace;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 0 50px rgba(255, 69, 0, 0.8), 0 10px 30px rgba(255, 69, 0, 0.3);
+    }
+
+    .scroll-down {
+      position: absolute;
+      bottom: 40px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 24px;
+      z-index: 2;
+      animation: bounce 2s infinite;
+    }
+
+    @keyframes bounce {
+      0%, 100% { transform: translateX(-50%) translateY(0); }
+      50% { transform: translateX(-50%) translateY(12px); }
+    }
+
+    /* ============ SECTIONS COMMON ============ */
+    section {
+      padding: 120px 24px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    section h2 {
+      font-family: 'Orbitron', monospace;
+      font-size: clamp(36px, 8vw, 72px);
+      font-weight: 900;
+      margin-bottom: 60px;
+      color: var(--gold);
+      text-align: center;
+    }
+
+    /* ============ ABOUT SECTION ============ */
+    .about {
+      background: #141414;
+    }
+
+    .about-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 60px;
+      align-items: center;
+    }
+
+    .about-text h3 {
+      font-size: 28px;
+      color: var(--orange);
+      margin-bottom: 20px;
+      font-family: 'Orbitron', monospace;
+    }
+
+    .about-text p {
+      font-size: 17px;
+      color: var(--muted);
+      margin-bottom: 16px;
+      line-height: 1.8;
+    }
+
+    .about-visual {
+      width: 100%;
+      height: 400px;
+      background: linear-gradient(135deg, rgba(255, 69, 0, 0.2), rgba(255, 215, 0, 0.1));
+      border: 2px solid var(--orange);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      color: var(--muted);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .about-visual::before {
+      content: '🎯 זירת לחימה אמיתית';
+      position: absolute;
+      font-size: 48px;
+    }
+
+    /* ============ FEATURES SECTION ============ */
+    .features {
+      background: #0d0d0d;
+    }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 40px;
+    }
+
+    .feature-card {
+      background: linear-gradient(135deg, rgba(255, 69, 0, 0.1), rgba(255, 215, 0, 0.05));
+      border: 2px solid var(--orange);
+      border-radius: 12px;
+      padding: 40px;
+      text-align: center;
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+
+    .feature-card:hover {
+      transform: translateY(-12px);
+      border-color: var(--gold);
+      box-shadow: 0 0 30px rgba(255, 69, 0, 0.4);
+    }
+
+    .feature-icon {
+      font-size: 56px;
+      margin-bottom: 20px;
+    }
+
+    .feature-card h3 {
+      font-size: 22px;
+      color: var(--gold);
+      margin-bottom: 15px;
+      font-family: 'Orbitron', monospace;
+    }
+
+    .feature-card p {
+      font-size: 16px;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    /* ============ GAME MODES SECTION ============ */
+    .game-modes {
+      background: #141414;
+    }
+
+    .modes-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 40px;
+    }
+
+    .mode-card {
+      background: linear-gradient(135deg, rgba(255, 215, 0, 0.15), rgba(255, 69, 0, 0.1));
+      border: 2px solid var(--gold);
+      border-radius: 12px;
+      padding: 50px 30px;
+      text-align: center;
+      transition: all 0.4s ease;
+    }
+
+    .mode-card:hover {
+      transform: scale(1.05) rotateY(-5deg);
+      box-shadow: 0 0 40px rgba(255, 215, 0, 0.3);
+    }
+
+    .mode-emoji {
+      font-size: 64px;
+      margin-bottom: 20px;
+    }
+
+    .mode-card h3 {
+      font-size: 28px;
+      color: var(--orange);
+      margin-bottom: 15px;
+      font-family: 'Orbitron', monospace;
+    }
+
+    .mode-card p {
+      font-size: 16px;
+      color: var(--muted);
+    }
+
+    /* ============ ADVANTAGES SECTION ============ */
+    .advantages {
+      background: #0d0d0d;
+    }
+
+    .advantages-list {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 40px;
+    }
+
+    .advantage-item {
+      display: flex;
+      gap: 20px;
+      padding: 20px;
+      border-left: 4px solid var(--orange);
+      transition: all 0.3s ease;
+    }
+
+    .advantage-item:hover {
+      border-left-color: var(--gold);
+      transform: translateX(10px);
+    }
+
+    .advantage-emoji {
+      font-size: 48px;
+      flex-shrink: 0;
+    }
+
+    .advantage-item h3 {
+      font-size: 20px;
+      color: var(--gold);
+      margin-bottom: 8px;
+      font-family: 'Orbitron', monospace;
+    }
+
+    .advantage-item p {
+      font-size: 15px;
+      color: var(--muted);
+    }
+
+    /* ============ FORM SECTION ============ */
+    .contact {
+      background: linear-gradient(135deg, rgba(255, 69, 0, 0.1), rgba(255, 215, 0, 0.05));
+      border: 2px solid var(--orange);
+      border-radius: 12px;
+    }
+
+    .form-container {
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    .form-group {
+      margin-bottom: 24px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--gold);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .form-group input,
+    .form-group textarea {
+      width: 100%;
+      padding: 14px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--orange);
+      border-radius: 8px;
+      color: var(--light-text);
+      font-family: 'Inter', sans-serif;
+      font-size: 16px;
+      transition: all 0.3s ease;
+    }
+
+    .form-group input:focus,
+    .form-group textarea:focus {
+      outline: none;
+      background: rgba(255, 69, 0, 0.1);
+      border-color: var(--gold);
+      box-shadow: 0 0 15px rgba(255, 69, 0, 0.3);
+    }
+
+    .form-group textarea {
+      resize: vertical;
+      min-height: 100px;
+    }
+
+    .form-submit {
+      width: 100%;
+      padding: 16px;
+      background: linear-gradient(135deg, var(--orange), #ff6b00);
+      color: #000;
+      border: none;
+      border-radius: 50px;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      font-family: 'Orbitron', monospace;
+      transition: all 0.3s ease;
+      box-shadow: 0 0 30px rgba(255, 69, 0, 0.4);
+    }
+
+    .form-submit:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 0 50px rgba(255, 69, 0, 0.8);
+    }
+
+    .form-submit:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .form-message {
+      text-align: center;
+      padding: 16px;
+      margin-top: 16px;
+      border-radius: 8px;
+      font-weight: 600;
+      display: none;
+    }
+
+    .form-message.success {
+      background: rgba(0, 200, 83, 0.2);
+      color: #00c853;
+      border: 1px solid #00c853;
+    }
+
+    .form-message.error {
+      background: rgba(255, 69, 0, 0.2);
+      color: var(--orange);
+      border: 1px solid var(--orange);
+    }
+
+    /* ============ RESPONSIVE ============ */
+    @media (max-width: 900px) {
+      .about-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .features-grid,
+      .modes-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .advantages-list {
+        grid-template-columns: 1fr;
+      }
+
+      section {
+        padding: 80px 20px;
+      }
+
+      section h2 {
+        margin-bottom: 40px;
+      }
+    }
+
+    @media (max-width: 580px) {
+      .hero h1 {
+        font-size: 42px;
+      }
+
+      .features-grid,
+      .modes-grid {
+        grid-template-columns: 1fr;
+      }
+
+      section {
+        padding: 60px 16px;
+      }
+
+      section h2 {
+        font-size: 32px;
+        margin-bottom: 30px;
+      }
+
+      .about-visual {
+        height: 250px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ============ HERO ============ -->
+  <header class="hero">
+    <div class="hero-background">
+      <div class="smoke smoke-1"></div>
+      <div class="smoke smoke-2"></div>
+      <div class="smoke smoke-3"></div>
+    </div>
+    <div class="hero-content">
+      <h1 class="hero-title">BOOM TANK</h1>
+      <svg class="tank-cannon" viewBox="0 0 400 200" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <filter id="glow">
+            <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+            <feMerge>
+              <feMergeNode in="coloredBlur"/>
+              <feMergeNode in="SourceGraphic"/>
+            </feMerge>
+          </filter>
+          <style>
+            @keyframes tankShoot1 { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-10px); } }
+            @keyframes tankShoot2 { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(10px); } }
+            @keyframes explosion { 0% { r: 20; opacity: 1; } 100% { r: 60; opacity: 0; } }
+            @keyframes smoke { 0% { opacity: 0.8; r: 15; } 50% { opacity: 0.4; r: 35; } 100% { opacity: 0; r: 55; } }
+            .tank-left { animation: tankShoot1 2s infinite; }
+            .tank-right { animation: tankShoot2 2s infinite; }
+            .boom { animation: explosion 1.5s ease-out 0.3s infinite; }
+            .smoke-circle { animation: smoke 1.8s ease-out 0.2s infinite; }
+          </style>
+        </defs>
+
+        <!-- Left Tank -->
+        <g class="tank-left">
+          <!-- Body -->
+          <rect x="20" y="85" width="80" height="35" fill="#8B7355" stroke="#ff4500" stroke-width="2" rx="3"/>
+          <!-- Turret -->
+          <circle cx="60" cy="85" r="18" fill="#6B5345" stroke="#ff4500" stroke-width="2"/>
+          <!-- Cannon -->
+          <line x1="60" y1="85" x2="105" y2="70" stroke="#ff4500" stroke-width="3" stroke-linecap="round"/>
+          <!-- Wheels -->
+          <circle cx="35" cy="122" r="5" fill="#333"/>
+          <circle cx="50" cy="122" r="5" fill="#333"/>
+          <circle cx="65" cy="122" r="5" fill="#333"/>
+          <circle cx="80" cy="122" r="5" fill="#333"/>
+        </g>
+
+        <!-- Right Tank -->
+        <g class="tank-right">
+          <!-- Body -->
+          <rect x="300" y="85" width="80" height="35" fill="#4a5f3a" stroke="#ffd700" stroke-width="2" rx="3" transform="scaleX(-1) translate(-380)"/>
+          <!-- Turret -->
+          <circle cx="340" cy="85" r="18" fill="#3a4f2a" stroke="#ffd700" stroke-width="2"/>
+          <!-- Cannon -->
+          <line x1="340" y1="85" x2="295" y2="70" stroke="#ffd700" stroke-width="3" stroke-linecap="round" transform="scaleX(-1) translate(-680)"/>
+          <!-- Wheels -->
+          <circle cx="365" cy="122" r="5" fill="#333"/>
+          <circle cx="350" cy="122" r="5" fill="#333"/>
+          <circle cx="335" cy="122" r="5" fill="#333"/>
+          <circle cx="320" cy="122" r="5" fill="#333"/>
+        </g>
+
+        <!-- Explosion -->
+        <circle class="boom" cx="200" cy="80" r="20" fill="#ff6b00" filter="url(#glow)"/>
+        <circle class="boom" cx="190" cy="100" r="18" fill="#ffd700" filter="url(#glow)" style="animation-delay: 0.4s"/>
+        <circle class="boom" cx="210" cy="100" r="18" fill="#ff4500" filter="url(#glow)" style="animation-delay: 0.35s"/>
+
+        <!-- Smoke -->
+        <circle class="smoke-circle" cx="200" cy="70" r="15" fill="#888" opacity="0.6"/>
+        <circle class="smoke-circle" cx="185" cy="85" r="12" fill="#666" opacity="0.5" style="animation-delay: 0.1s"/>
+        <circle class="smoke-circle" cx="215" cy="85" r="12" fill="#666" opacity="0.5" style="animation-delay: 0.15s"/>
+      </svg>
+      <p class="subtitle">זירת לחימה סימולטיבית של טנקים על שלט רחוק</p>
+      <div style="text-align: center;">
+        <button class="btn-primary" onclick="document.querySelector('.contact').scrollIntoView({ behavior: 'smooth' })">
+          בואו נשחק
+        </button>
+        <div style="font-size: 32px; margin-top: 12px; animation: bounce 2s infinite;">💥</div>
+      </div>
+      <div class="scroll-down">⬇️</div>
+    </div>
+  </header>
+
+  <!-- ============ ABOUT ============ -->
+  <section class="about">
+    <h2>מי אנחנו?</h2>
+    <div class="about-grid">
+      <div class="about-text">
+        <h3>חוויה בלתי נשכחת</h3>
+        <p>
+          BOOM TANK היא זירת לחימה סימולטיבית חדשנית שמשלבת טכנולוגיה מתקדמת עם אקשן אמיתי.
+        </p>
+        <p>
+          טנקים על שלט רחוק (Heng Long 1/16) עם ירי לייזר IR, כדורי BB, עשן אמיתי, ומצלמת POV.
+        </p>
+        <p>
+          זה לא רק משחק — זה חוויה של ממש!
+        </p>
+      </div>
+      <div class="about-visual"></div>
+    </div>
+  </section>
+
+  <!-- ============ FEATURES ============ -->
+  <section class="features">
+    <h2>הטכנולוגיה שלנו</h2>
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon">🔴</div>
+        <h3>ירי לייזר IR</h3>
+        <p>ירי לייזר בעוצמה אמיתית. כל זריקה פוגעת וגורמת נזק אמיתי!</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">💨</div>
+        <h3>כדורי BB + עשן</h3>
+        <p>אפקטים אמיתיים בשדה הקרב — אתה רואה וחש את הפיצוץ!</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📹</div>
+        <h3>מצלמת POV</h3>
+        <p>ראה את הקרב דרך עיני הטנק! חיבור ישיר למסך השלט.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ GAME MODES ============ -->
+  <section class="game-modes">
+    <h2>המודים</h2>
+    <div class="modes-grid">
+      <div class="mode-card">
+        <div class="mode-emoji">🔥</div>
+        <h3>Free For All</h3>
+        <p>כולם נגד כולם! המטנק האחרון שנותר ניצח!</p>
+      </div>
+      <div class="mode-card">
+        <div class="mode-emoji">🚩</div>
+        <h3>Capture The Flag</h3>
+        <p>גנוב את דגל הצד השני! עבודת צוות ואסטרטגיה.</p>
+      </div>
+      <div class="mode-card">
+        <div class="mode-emoji">🎯</div>
+        <h3>Domination</h3>
+        <p>שלוט ב-3 נקודות (A, B, C). הצד עם הנקודות הרב משוחק!</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ ADVANTAGES ============ -->
+  <section class="advantages">
+    <h2>למה BOOM TANK?</h2>
+    <div class="advantages-list">
+      <div class="advantage-item">
+        <div class="advantage-emoji">⚡</div>
+        <div>
+          <h3>אקשן ממש</h3>
+          <p>לא משחק וידיאו — זו חוויה פיזית אמיתית עם מכות וירי!</p>
+        </div>
+      </div>
+      <div class="advantage-item">
+        <div class="advantage-emoji">🎮</div>
+        <div>
+          <h3>טכנולוגיה ייחודית</h3>
+          <p>שילוב של RC טנקים, לייזר, BB וPOV — לא קיים בארץ!</p>
+        </div>
+      </div>
+      <div class="advantage-item">
+        <div class="advantage-emoji">👨‍👩‍👧‍👦</div>
+        <div>
+          <h3>לכל הגילאים</h3>
+          <p>ילדים, נערים, משפחות וחברים — כולם יכולים לשחק!</p>
+        </div>
+      </div>
+      <div class="advantage-item">
+        <div class="advantage-emoji">🏆</div>
+        <div>
+          <h3>תחרותיות + כיף</h3>
+          <p>זה משעשע, מתסכל (בצורה טובה!) ובטוח — זה אדרנלין!</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ CONTACT FORM ============ -->
+  <section class="contact closing-cta">
+    <h2>בואו נשחק!</h2>
+    <div class="form-container">
+      <form id="contactForm">
+        <div class="form-group">
+          <label for="name">שם מלא *</label>
+          <input type="text" id="name" name="name" required>
+        </div>
+        <div class="form-group">
+          <label for="phone">טלפון *</label>
+          <input type="tel" id="phone" name="phone" required>
+        </div>
+        <div class="form-group">
+          <label for="email">אימייל *</label>
+          <input type="email" id="email" name="email" required>
+        </div>
+        <div class="form-group">
+          <label for="message">הערה (אופציונלי)</label>
+          <textarea id="message" name="message"></textarea>
+        </div>
+        <button type="submit" class="form-submit">הזמן חוויה 💥</button>
+        <div id="formMessage" class="form-message"></div>
+      </form>
+    </div>
+  </section>
+
+  <script>
+    // EmailJS Configuration
+    emailjs.init("UxjlhmG1VR9BPOdvw");
+
+    // GSAP Animations
+    gsap.registerPlugin(ScrollTrigger);
+
+    // Hero entrance
+    gsap.set([".hero-title", ".tank-cannon", ".subtitle", ".btn-primary", ".scroll-down"], {
+      opacity: 0,
+      y: 30
+    });
+
+    const heroTl = gsap.timeline({ defaults: { ease: "power3.out" } });
+    heroTl
+      .to(".hero-title", { opacity: 1, y: 0, duration: 0.8 })
+      .to(".tank-cannon", { opacity: 1, y: 0, duration: 0.6 }, "-=0.4")
+      .to(".subtitle", { opacity: 1, y: 0, duration: 0.6 }, "-=0.4")
+      .to(".btn-primary", { opacity: 1, y: 0, duration: 0.5 }, "-=0.3")
+      .to(".scroll-down", { opacity: 1, y: 0, duration: 0.4 }, "-=0.2");
+
+    // About section reveal
+    gsap.set(".about-text h3, .about-text p, .about-visual", { opacity: 0, y: 40 });
+
+    ScrollTrigger.batch(".about-text h3, .about-text p, .about-visual", {
+      start: "top 80%",
+      onEnter: batch => gsap.to(batch, {
+        opacity: 1,
+        y: 0,
+        duration: 0.6,
+        stagger: 0.1,
+        ease: "power2.out"
+      })
+    });
+
+    // Feature cards reveal with rotateX
+    gsap.set(".feature-card", { opacity: 0, y: 50, rotateX: 20 });
+
+    ScrollTrigger.batch(".feature-card", {
+      start: "top 80%",
+      onEnter: batch => gsap.to(batch, {
+        opacity: 1,
+        y: 0,
+        rotateX: 0,
+        duration: 0.7,
+        stagger: 0.15,
+        ease: "back.out"
+      })
+    });
+
+    // Mode cards reveal
+    gsap.set(".mode-card", { opacity: 0, y: 50, scale: 0.9 });
+
+    ScrollTrigger.batch(".mode-card", {
+      start: "top 80%",
+      onEnter: batch => gsap.to(batch, {
+        opacity: 1,
+        y: 0,
+        scale: 1,
+        duration: 0.7,
+        stagger: 0.15,
+        ease: "elastic.out(1, 0.5)"
+      })
+    });
+
+    // Advantages items reveal
+    gsap.set(".advantage-item", { opacity: 0, x: -40 });
+
+    ScrollTrigger.batch(".advantage-item", {
+      start: "top 80%",
+      onEnter: batch => gsap.to(batch, {
+        opacity: 1,
+        x: 0,
+        duration: 0.6,
+        stagger: 0.1,
+        ease: "power2.out"
+      })
+    });
+
+    // Contact form reveal
+    gsap.set(".form-container", { opacity: 0, y: 60 });
+
+    gsap.to(".form-container", {
+      opacity: 1,
+      y: 0,
+      duration: 0.8,
+      ease: "power2.out",
+      scrollTrigger: {
+        trigger: ".contact",
+        start: "top 70%"
+      }
+    });
+
+    // Tank cannon fire animation on page scroll
+    gsap.to(".cannon-fire", {
+      opacity: 0,
+      y: -100,
+      duration: 0.4,
+      repeat: -1,
+      repeatDelay: 3,
+      ease: "power1.in"
+    });
+
+    // Form handling
+    const form = document.getElementById("contactForm");
+    const formMessage = document.getElementById("formMessage");
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const name = document.getElementById("name").value;
+      const phone = document.getElementById("phone").value;
+      const email = document.getElementById("email").value;
+      const message = document.getElementById("message").value;
+
+      const submitBtn = form.querySelector(".form-submit");
+      submitBtn.disabled = true;
+      submitBtn.textContent = "שולח...";
+
+      try {
+        // Send email via EmailJS
+        await emailjs.send("service_qwqwava", "template_i4hphkg", {
+          name: name,
+          email: email,
+          phone: phone,
+          message: message || "בלי הערה"
+        });
+
+        formMessage.textContent = "✅ תודה! נחזור אליך בקרוב!";
+        formMessage.classList.add("success");
+        formMessage.classList.remove("error");
+        formMessage.style.display = "block";
+
+        form.reset();
+
+        setTimeout(() => {
+          formMessage.style.display = "none";
+        }, 5000);
+      } catch (error) {
+        console.error("Error sending email:", error);
+        formMessage.textContent = "❌ שגיאה בשליחה. אנא נסה שוב.";
+        formMessage.classList.add("error");
+        formMessage.classList.remove("success");
+        formMessage.style.display = "block";
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = "הזמן חוויה 💥";
+      }
+    });
+
+    // Mouse parallax effect on hero
+    const hero = document.querySelector(".hero");
+    hero.addEventListener("mousemove", (e) => {
+      const x = (e.clientX / window.innerWidth - 0.5) * 2;
+      const y = (e.clientY / window.innerHeight - 0.5) * 2;
+
+      gsap.to(".hero-background", { x: x * 20, y: y * 20, duration: 0.8 });
+    });
+  </script>
+
+</body>
+</html>
