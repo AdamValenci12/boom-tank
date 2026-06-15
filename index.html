@@ -1,18 +1,21 @@
 <!DOCTYPE html>
-<html lang="he">
+<html lang="he" dir="rtl" class="scroll-smooth">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>BOOM TANK — זירת לחימה סימולטיבית של טנקים</title>
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <title>BOOM TANK - חוויית הלחימה הסימולטיבית</title>
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;700;900&display=swap" rel="stylesheet">
+  <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
   <style>
     :root {
-      --dark: #0d0d0d;
-      --orange: #ff4500;
-      --gold: #ffd700;
+      --dark: #050507;
+      --orange: #f97316;
       --light-text: #f5f5f5;
       --muted: rgba(245, 245, 245, 0.7);
     }
@@ -23,214 +26,222 @@
       box-sizing: border-box;
     }
 
-    html {
-      scroll-behavior: smooth;
-    }
-
     body {
-      background: var(--dark);
+      font-family: 'Heebo', sans-serif;
+      background-color: var(--dark);
       color: var(--light-text);
-      font-family: 'Inter', sans-serif;
-      line-height: 1.6;
       overflow-x: hidden;
     }
 
-    /* ============ HERO SECTION ============ */
-    .hero {
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      position: relative;
-      overflow: hidden;
-      background: linear-gradient(135deg, #0d0d0d 0%, #1a1a1a 100%);
+    /* אפקט תלת-ממד עדין לקארדים */
+    .perspective-3d {
+      perspective: 1000px;
     }
 
-    .hero-background {
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      top: 0;
-      left: 0;
-      z-index: 1;
+    .card-3d {
+      transform-style: preserve-3d;
+      transition: transform 0.5s ease, box-shadow 0.5s ease;
     }
 
-    .smoke {
-      position: absolute;
-      border-radius: 50%;
-      opacity: 0.15;
-      filter: blur(40px);
-      background: var(--orange);
+    .card-3d:hover {
+      transform: rotateX(10deg) rotateY(-10deg) translateZ(20px);
     }
 
-    .smoke-1 { width: 300px; height: 300px; top: 20%; left: 10%; animation: floatSmoke1 8s ease-in-out infinite; }
-    .smoke-2 { width: 400px; height: 400px; top: 40%; right: 5%; animation: floatSmoke2 10s ease-in-out infinite; }
-    .smoke-3 { width: 250px; height: 250px; bottom: 10%; left: 30%; animation: floatSmoke3 12s ease-in-out infinite; }
-
-    @keyframes floatSmoke1 {
-      0%, 100% { transform: translate(0, 0); }
-      50% { transform: translate(30px, -40px); }
+    /* Custom animations for hero */
+    @keyframes float-up {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-20px); }
     }
 
-    @keyframes floatSmoke2 {
-      0%, 100% { transform: translate(0, 0); }
-      50% { transform: translate(-40px, 30px); }
+    @keyframes glow-pulse {
+      0%, 100% { box-shadow: 0 0 30px rgba(249, 115, 22, 0.3); }
+      50% { box-shadow: 0 0 60px rgba(249, 115, 22, 0.6); }
     }
 
-    @keyframes floatSmoke3 {
-      0%, 100% { transform: translate(0, 0); }
-      50% { transform: translate(20px, 40px); }
+    .float-animation {
+      animation: float-up 3s ease-in-out infinite;
     }
 
-    .hero-content {
-      position: relative;
-      z-index: 2;
-      text-align: center;
-      max-width: 900px;
-      padding: 40px;
-    }
-
-    .hero h1 {
-      font-family: 'Orbitron', monospace;
-      font-size: clamp(48px, 12vw, 120px);
-      font-weight: 900;
-      margin-bottom: 20px;
-      color: var(--gold);
-      text-shadow: 0 0 20px var(--orange), 0 0 40px rgba(255, 69, 0, 0.5);
-      letter-spacing: 3px;
-    }
-
-    .tank-cannon {
-      width: 100%;
-      max-width: 200px;
-      height: auto;
-      margin: 30px auto;
-      filter: drop-shadow(0 0 15px var(--orange));
-    }
-
-    .hero .subtitle {
-      font-size: 18px;
-      color: var(--muted);
-      margin-bottom: 40px;
-      letter-spacing: 1px;
-    }
-
-    .btn-primary {
-      display: inline-block;
-      padding: 16px 48px;
-      background: linear-gradient(135deg, var(--orange), #ff6b00);
-      color: #000;
-      border: none;
-      border-radius: 50px;
-      font-size: 16px;
-      font-weight: 700;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      box-shadow: 0 0 30px rgba(255, 69, 0, 0.4);
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      font-family: 'Orbitron', monospace;
-    }
-
-    .btn-primary:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 0 50px rgba(255, 69, 0, 0.8), 0 10px 30px rgba(255, 69, 0, 0.3);
-    }
-
-    .scroll-down {
-      position: absolute;
-      bottom: 40px;
-      left: 50%;
-      transform: translateX(-50%);
-      font-size: 24px;
-      z-index: 2;
-      animation: bounce 2s infinite;
-    }
-
-    @keyframes bounce {
-      0%, 100% { transform: translateX(-50%) translateY(0); }
-      50% { transform: translateX(-50%) translateY(12px); }
+    .glow-pulse {
+      animation: glow-pulse 2s ease-in-out infinite;
     }
 
     /* ============ SECTIONS COMMON ============ */
     section {
-      padding: 120px 24px;
-      max-width: 1200px;
+      padding: 32px 16px;
+      max-width: 100%;
       margin: 0 auto;
     }
 
     section h2 {
-      font-family: 'Orbitron', monospace;
-      font-size: clamp(36px, 8vw, 72px);
+      font-size: 2.25rem;
       font-weight: 900;
-      margin-bottom: 60px;
-      color: var(--gold);
+      margin-bottom: 3rem;
+      color: #f97316;
       text-align: center;
     }
 
     /* ============ ABOUT SECTION ============ */
     .about {
-      background: #141414;
+      background: #0a0a0a;
     }
 
     .about-grid {
       display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 60px;
-      align-items: center;
+      grid-template-columns: 1.2fr 1fr;
+      gap: 4rem;
+      align-items: flex-start;
+      max-width: 7xl;
+      margin: 0 auto;
     }
 
-    .about-text h3 {
-      font-size: 28px;
-      color: var(--orange);
-      margin-bottom: 20px;
-      font-family: 'Orbitron', monospace;
-    }
-
-    .about-text p {
-      font-size: 17px;
+    .about-intro {
+      font-size: 1.125rem;
       color: var(--muted);
-      margin-bottom: 16px;
-      line-height: 1.8;
+      margin-bottom: 2.5rem;
+      line-height: 1.9;
+      font-weight: 500;
+    }
+
+    .about-features {
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+      margin-bottom: 2rem;
+    }
+
+    .feature-item {
+      display: flex;
+      gap: 1.5rem;
+      padding: 1.5rem;
+      background: linear-gradient(135deg, rgba(249, 115, 22, 0.08), rgba(249, 115, 22, 0.03));
+      border-left: 3px solid #f97316;
+      border-radius: 8px;
+      transition: all 0.3s ease;
+    }
+
+    .feature-item:hover {
+      background: linear-gradient(135deg, rgba(249, 115, 22, 0.15), rgba(249, 115, 22, 0.08));
+      border-left-color: #fbbf24;
+      transform: translateX(10px);
+    }
+
+    .feature-icon {
+      font-size: 2.5rem;
+      flex-shrink: 0;
+    }
+
+    .feature-item h4 {
+      font-size: 1.125rem;
+      color: #f97316;
+      margin-bottom: 0.5rem;
+      font-weight: 700;
+    }
+
+    .feature-item p {
+      font-size: 0.9375rem;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    .about-closing {
+      font-size: 1.0625rem;
+      color: #f97316;
+      font-weight: 600;
+      text-align: center;
+      padding: 1.5rem;
+      background: rgba(249, 115, 22, 0.1);
+      border-radius: 8px;
+      border: 1px solid rgba(249, 115, 22, 0.3);
     }
 
     .about-visual {
       width: 100%;
-      height: 400px;
-      background: linear-gradient(135deg, rgba(255, 69, 0, 0.2), rgba(255, 215, 0, 0.1));
-      border: 2px solid var(--orange);
+      height: 500px;
+      background: linear-gradient(135deg, rgba(249, 115, 22, 0.2), rgba(249, 115, 22, 0.1));
+      border: 2px solid #f97316;
       border-radius: 12px;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 18px;
-      color: var(--muted);
       position: relative;
       overflow: hidden;
+      box-shadow: 0 0 40px rgba(249, 115, 22, 0.2);
     }
 
-    .about-visual::before {
-      content: '🎯 זירת לחימה אמיתית';
-      position: absolute;
-      font-size: 48px;
+    .about-visual video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    /* About badges */
+    .about-intro-badge {
+      display: inline-block;
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: #f97316;
+      border: 1px solid rgba(249,115,22,0.4);
+      padding: 3px 12px;
+      border-radius: 20px;
+      margin-bottom: 0.6rem;
+    }
+
+    /* Process bar */
+    .about-process {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 1rem;
+      padding: 1.25rem 1.5rem;
+      background: rgba(249,115,22,0.06);
+      border-radius: 12px;
+      border: 1px solid rgba(249,115,22,0.2);
+      flex-wrap: wrap;
+      margin-top: 0.5rem;
+    }
+
+    .process-step {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      font-size: 0.8rem;
+      color: var(--muted);
+      font-weight: 600;
+      text-align: center;
+    }
+
+    .process-step .step-icon {
+      font-size: 1.4rem;
+    }
+
+    .process-arrow {
+      color: rgba(249,115,22,0.5);
+      font-size: 1.1rem;
+      flex-shrink: 0;
     }
 
     /* ============ FEATURES SECTION ============ */
     .features {
-      background: #0d0d0d;
+      background: #050507;
     }
 
     .features-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: 40px;
+      gap: 2.5rem;
+      max-width: 7xl;
+      margin: 0 auto;
     }
 
     .feature-card {
-      background: linear-gradient(135deg, rgba(255, 69, 0, 0.1), rgba(255, 215, 0, 0.05));
-      border: 2px solid var(--orange);
+      background: linear-gradient(135deg, rgba(249, 115, 22, 0.1), rgba(249, 115, 22, 0.05));
+      border: 2px solid #f97316;
       border-radius: 12px;
-      padding: 40px;
+      padding: 2.5rem;
       text-align: center;
       transition: all 0.3s ease;
       cursor: pointer;
@@ -238,116 +249,122 @@
 
     .feature-card:hover {
       transform: translateY(-12px);
-      border-color: var(--gold);
-      box-shadow: 0 0 30px rgba(255, 69, 0, 0.4);
+      border-color: #fbbf24;
+      box-shadow: 0 0 30px rgba(249, 115, 22, 0.4);
     }
 
     .feature-icon {
-      font-size: 56px;
-      margin-bottom: 20px;
+      font-size: 3.5rem;
+      margin-bottom: 1.25rem;
     }
 
     .feature-card h3 {
-      font-size: 22px;
-      color: var(--gold);
-      margin-bottom: 15px;
-      font-family: 'Orbitron', monospace;
+      font-size: 1.375rem;
+      color: #fbbf24;
+      margin-bottom: 0.9375rem;
+      font-weight: 700;
     }
 
     .feature-card p {
-      font-size: 16px;
+      font-size: 1rem;
       color: var(--muted);
       line-height: 1.6;
     }
 
     /* ============ GAME MODES SECTION ============ */
     .game-modes {
-      background: #141414;
+      background: #0a0a0a;
     }
 
     .modes-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: 40px;
+      gap: 2.5rem;
+      max-width: 7xl;
+      margin: 0 auto;
     }
 
     .mode-card {
-      background: linear-gradient(135deg, rgba(255, 215, 0, 0.15), rgba(255, 69, 0, 0.1));
-      border: 2px solid var(--gold);
+      background: linear-gradient(135deg, rgba(251, 191, 36, 0.15), rgba(249, 115, 22, 0.1));
+      border: 2px solid #fbbf24;
       border-radius: 12px;
-      padding: 50px 30px;
+      padding: 3.125rem 1.875rem;
       text-align: center;
       transition: all 0.4s ease;
     }
 
     .mode-card:hover {
-      transform: scale(1.05) rotateY(-5deg);
-      box-shadow: 0 0 40px rgba(255, 215, 0, 0.3);
+      transform: scale(1.05);
+      box-shadow: 0 0 40px rgba(251, 191, 36, 0.3);
     }
 
     .mode-emoji {
-      font-size: 64px;
-      margin-bottom: 20px;
+      font-size: 4rem;
+      margin-bottom: 1.25rem;
     }
 
     .mode-card h3 {
-      font-size: 28px;
-      color: var(--orange);
-      margin-bottom: 15px;
-      font-family: 'Orbitron', monospace;
+      font-size: 1.75rem;
+      color: #f97316;
+      margin-bottom: 0.9375rem;
+      font-weight: 700;
     }
 
     .mode-card p {
-      font-size: 16px;
+      font-size: 1rem;
       color: var(--muted);
     }
 
     /* ============ ADVANTAGES SECTION ============ */
     .advantages {
-      background: #0d0d0d;
+      background: #050507;
     }
 
     .advantages-list {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
-      gap: 40px;
+      gap: 2.5rem;
+      max-width: 7xl;
+      margin: 0 auto;
     }
 
     .advantage-item {
       display: flex;
-      gap: 20px;
-      padding: 20px;
-      border-left: 4px solid var(--orange);
+      gap: 1.25rem;
+      padding: 1.25rem;
+      border-left: 4px solid #f97316;
       transition: all 0.3s ease;
     }
 
     .advantage-item:hover {
-      border-left-color: var(--gold);
+      border-left-color: #fbbf24;
       transform: translateX(10px);
     }
 
     .advantage-emoji {
-      font-size: 48px;
+      font-size: 3rem;
       flex-shrink: 0;
     }
 
     .advantage-item h3 {
-      font-size: 20px;
-      color: var(--gold);
-      margin-bottom: 8px;
-      font-family: 'Orbitron', monospace;
+      font-size: 1.25rem;
+      color: #fbbf24;
+      margin-bottom: 0.5rem;
+      font-weight: 700;
     }
 
     .advantage-item p {
-      font-size: 15px;
+      font-size: 0.9375rem;
       color: var(--muted);
     }
 
     /* ============ FORM SECTION ============ */
     .contact {
-      background: linear-gradient(135deg, rgba(255, 69, 0, 0.1), rgba(255, 215, 0, 0.05));
-      border: 2px solid var(--orange);
+      background: linear-gradient(135deg, rgba(249, 115, 22, 0.1), rgba(249, 115, 22, 0.05));
+      border: 2px solid #f97316;
       border-radius: 12px;
+      max-width: 7xl;
+      margin: 0 auto;
     }
 
     .form-container {
@@ -356,15 +373,15 @@
     }
 
     .form-group {
-      margin-bottom: 24px;
+      margin-bottom: 1.5rem;
     }
 
     .form-group label {
       display: block;
-      margin-bottom: 8px;
-      font-size: 14px;
+      margin-bottom: 0.5rem;
+      font-size: 0.875rem;
       font-weight: 600;
-      color: var(--gold);
+      color: #fbbf24;
       text-transform: uppercase;
       letter-spacing: 1px;
     }
@@ -372,22 +389,22 @@
     .form-group input,
     .form-group textarea {
       width: 100%;
-      padding: 14px;
+      padding: 0.875rem;
       background: rgba(255, 255, 255, 0.05);
-      border: 1px solid var(--orange);
+      border: 1px solid #f97316;
       border-radius: 8px;
       color: var(--light-text);
-      font-family: 'Inter', sans-serif;
-      font-size: 16px;
+      font-family: 'Heebo', sans-serif;
+      font-size: 1rem;
       transition: all 0.3s ease;
     }
 
     .form-group input:focus,
     .form-group textarea:focus {
       outline: none;
-      background: rgba(255, 69, 0, 0.1);
-      border-color: var(--gold);
-      box-shadow: 0 0 15px rgba(255, 69, 0, 0.3);
+      background: rgba(249, 115, 22, 0.1);
+      border-color: #fbbf24;
+      box-shadow: 0 0 15px rgba(249, 115, 22, 0.3);
     }
 
     .form-group textarea {
@@ -397,24 +414,24 @@
 
     .form-submit {
       width: 100%;
-      padding: 16px;
-      background: linear-gradient(135deg, var(--orange), #ff6b00);
+      padding: 1rem;
+      background: linear-gradient(135deg, #f97316, #ea580c);
       color: #000;
       border: none;
       border-radius: 50px;
-      font-size: 16px;
+      font-size: 1rem;
       font-weight: 700;
       cursor: pointer;
       text-transform: uppercase;
       letter-spacing: 1px;
-      font-family: 'Orbitron', monospace;
+      font-family: 'Heebo', sans-serif;
       transition: all 0.3s ease;
-      box-shadow: 0 0 30px rgba(255, 69, 0, 0.4);
+      box-shadow: 0 0 30px rgba(249, 115, 22, 0.4);
     }
 
     .form-submit:hover {
       transform: translateY(-4px);
-      box-shadow: 0 0 50px rgba(255, 69, 0, 0.8);
+      box-shadow: 0 0 50px rgba(249, 115, 22, 0.8);
     }
 
     .form-submit:disabled {
@@ -424,8 +441,8 @@
 
     .form-message {
       text-align: center;
-      padding: 16px;
-      margin-top: 16px;
+      padding: 1rem;
+      margin-top: 1rem;
       border-radius: 8px;
       font-weight: 600;
       display: none;
@@ -438,9 +455,9 @@
     }
 
     .form-message.error {
-      background: rgba(255, 69, 0, 0.2);
-      color: var(--orange);
-      border: 1px solid var(--orange);
+      background: rgba(249, 115, 22, 0.2);
+      color: #f97316;
+      border: 1px solid #f97316;
     }
 
     /* ============ RESPONSIVE ============ */
@@ -459,31 +476,27 @@
       }
 
       section {
-        padding: 80px 20px;
+        padding: 5rem 1.25rem;
       }
 
       section h2 {
-        margin-bottom: 40px;
+        margin-bottom: 2.5rem;
       }
     }
 
     @media (max-width: 580px) {
-      .hero h1 {
-        font-size: 42px;
-      }
-
       .features-grid,
       .modes-grid {
         grid-template-columns: 1fr;
       }
 
       section {
-        padding: 60px 16px;
+        padding: 3.75rem 1rem;
       }
 
       section h2 {
-        font-size: 32px;
-        margin-bottom: 30px;
+        font-size: 2rem;
+        margin-bottom: 1.875rem;
       }
 
       .about-visual {
@@ -494,104 +507,118 @@
 </head>
 <body>
 
-  <!-- ============ HERO ============ -->
-  <header class="hero">
-    <div class="hero-background">
-      <div class="smoke smoke-1"></div>
-      <div class="smoke smoke-2"></div>
-      <div class="smoke smoke-3"></div>
+  <!-- ============ HERO SECTION ============ -->
+  <section class="relative min-h-screen flex items-center justify-center px-4 overflow-hidden">
+    <!-- Video background with overlay content -->
+    <div class="absolute inset-0 z-0">
+      <video
+        src="./videos/BOOM TANK.mp4"
+        autoplay
+        loop
+        muted
+        playsinline
+        class="w-full h-full object-cover"
+      ></video>
+      <!-- Dark overlay for text readability -->
+      <div class="absolute inset-0 bg-black/40"></div>
     </div>
-    <div class="hero-content">
-      <h1 class="hero-title">BOOM TANK</h1>
-      <svg class="tank-cannon" viewBox="0 0 400 200" xmlns="http://www.w3.org/2000/svg">
-        <defs>
-          <filter id="glow">
-            <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
-            <feMerge>
-              <feMergeNode in="coloredBlur"/>
-              <feMergeNode in="SourceGraphic"/>
-            </feMerge>
-          </filter>
-          <style>
-            @keyframes tankShoot1 { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-10px); } }
-            @keyframes tankShoot2 { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(10px); } }
-            @keyframes explosion { 0% { r: 20; opacity: 1; } 100% { r: 60; opacity: 0; } }
-            @keyframes smoke { 0% { opacity: 0.8; r: 15; } 50% { opacity: 0.4; r: 35; } 100% { opacity: 0; r: 55; } }
-            .tank-left { animation: tankShoot1 2s infinite; }
-            .tank-right { animation: tankShoot2 2s infinite; }
-            .boom { animation: explosion 1.5s ease-out 0.3s infinite; }
-            .smoke-circle { animation: smoke 1.8s ease-out 0.2s infinite; }
-          </style>
-        </defs>
 
-        <!-- Left Tank -->
-        <g class="tank-left">
-          <!-- Body -->
-          <rect x="20" y="85" width="80" height="35" fill="#8B7355" stroke="#ff4500" stroke-width="2" rx="3"/>
-          <!-- Turret -->
-          <circle cx="60" cy="85" r="18" fill="#6B5345" stroke="#ff4500" stroke-width="2"/>
-          <!-- Cannon -->
-          <line x1="60" y1="85" x2="105" y2="70" stroke="#ff4500" stroke-width="3" stroke-linecap="round"/>
-          <!-- Wheels -->
-          <circle cx="35" cy="122" r="5" fill="#333"/>
-          <circle cx="50" cy="122" r="5" fill="#333"/>
-          <circle cx="65" cy="122" r="5" fill="#333"/>
-          <circle cx="80" cy="122" r="5" fill="#333"/>
-        </g>
+    <!-- Content overlay (centered in video) -->
+    <div class="relative z-10 w-full h-full flex flex-col items-center justify-center px-4">
+      <!-- Logo -->
+      <h1 class="text-7xl md:text-8xl lg:text-9xl font-black tracking-wider uppercase mb-6" style="background: linear-gradient(135deg, #fbbf24 0%, #f97316 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; text-shadow: 0 0 50px rgba(249, 115, 22, 0.5);">
+        BOOM TANK
+      </h1>
 
-        <!-- Right Tank -->
-        <g class="tank-right">
-          <!-- Body -->
-          <rect x="300" y="85" width="80" height="35" fill="#4a5f3a" stroke="#ffd700" stroke-width="2" rx="3" transform="scaleX(-1) translate(-380)"/>
-          <!-- Turret -->
-          <circle cx="340" cy="85" r="18" fill="#3a4f2a" stroke="#ffd700" stroke-width="2"/>
-          <!-- Cannon -->
-          <line x1="340" y1="85" x2="295" y2="70" stroke="#ffd700" stroke-width="3" stroke-linecap="round" transform="scaleX(-1) translate(-680)"/>
-          <!-- Wheels -->
-          <circle cx="365" cy="122" r="5" fill="#333"/>
-          <circle cx="350" cy="122" r="5" fill="#333"/>
-          <circle cx="335" cy="122" r="5" fill="#333"/>
-          <circle cx="320" cy="122" r="5" fill="#333"/>
-        </g>
-
-        <!-- Explosion -->
-        <circle class="boom" cx="200" cy="80" r="20" fill="#ff6b00" filter="url(#glow)"/>
-        <circle class="boom" cx="190" cy="100" r="18" fill="#ffd700" filter="url(#glow)" style="animation-delay: 0.4s"/>
-        <circle class="boom" cx="210" cy="100" r="18" fill="#ff4500" filter="url(#glow)" style="animation-delay: 0.35s"/>
-
-        <!-- Smoke -->
-        <circle class="smoke-circle" cx="200" cy="70" r="15" fill="#888" opacity="0.6"/>
-        <circle class="smoke-circle" cx="185" cy="85" r="12" fill="#666" opacity="0.5" style="animation-delay: 0.1s"/>
-        <circle class="smoke-circle" cx="215" cy="85" r="12" fill="#666" opacity="0.5" style="animation-delay: 0.15s"/>
-      </svg>
-      <p class="subtitle">זירת לחימה סימולטיבית של טנקים על שלט רחוק</p>
-      <div style="text-align: center;">
-        <button class="btn-primary" onclick="document.querySelector('.contact').scrollIntoView({ behavior: 'smooth' })">
-          בואו נשחק
-        </button>
-        <div style="font-size: 32px; margin-top: 12px; animation: bounce 2s infinite;">💥</div>
-      </div>
-      <div class="scroll-down">⬇️</div>
+      <!-- Subtitle -->
+      <p class="text-lg md:text-2xl text-white font-semibold mb-24 leading-relaxed">
+        זירת לחימה סימולטיבית של טנקים על שלט רחוק
+      </p>
     </div>
-  </header>
+
+    <!-- Center Button -->
+    <!-- Centered button (bottom center) - Professional Design -->
+    <a href="#contact-form" style="padding: 15px 75px;" class="absolute bottom-32 left-1/2 transform -translate-x-1/2 z-20 bg-gradient-to-r from-orange-500/30 to-orange-600/20 border-2 border-orange-400/70 hover:border-orange-300 hover:from-orange-500/40 hover:to-orange-600/30 font-bold text-3xl rounded-xl transition-all duration-300 hover:shadow-[0_0_120px_rgba(249,115,22,0.8)] text-white transform hover:scale-105 backdrop-blur-lg hover:backdrop-blur-xl whitespace-nowrap tracking-wider">
+      לפרטים נוספים
+    </a>
+
+    <!-- Scroll hint -->
+    <div class="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-10 animate-bounce">
+      <p class="text-zinc-300 text-sm font-medium">גלול למטה ↓</p>
+    </div>
+  </section>
 
   <!-- ============ ABOUT ============ -->
-  <section class="about">
-    <h2>מי אנחנו?</h2>
+  <section id="about-section" class="about">
+    <h2 style="background: linear-gradient(135deg, #fbbf24 0%, #f97316 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; text-shadow: 0 0 50px rgba(249, 115, 22, 0.4);">מי אנחנו</h2>
     <div class="about-grid">
-      <div class="about-text">
-        <h3>חוויה בלתי נשכחת</h3>
-        <p>
-          BOOM TANK היא זירת לחימה סימולטיבית חדשנית שמשלבת טכנולוגיה מתקדמת עם אקשן אמיתי.
-        </p>
-        <p>
-          טנקים על שלט רחוק (Heng Long 1/16) עם ירי לייזר IR, כדורי BB, עשן אמיתי, ומצלמת POV.
-        </p>
-        <p>
-          זה לא רק משחק — זה חוויה של ממש!
-        </p>
+      <div class="about-visual">
+        <video
+          src="./videos/BOOMTANK2.mp4"
+          autoplay
+          loop
+          muted
+          playsinline
+          class="w-full h-full object-cover"
+          style="border-radius: 12px;"
+        ></video>
       </div>
-      <div class="about-visual"></div>
+      <div class="about-text">
+        <!-- WHO WE ARE -->
+        <span class="about-intro-badge">מי אנחנו</span>
+        <p class="about-intro" data-aos="fade-up">
+          BOOM TANK היא זירת לחימה סימולטיבית של טנקים על שלט, שמשלבת טכנולוגיה מתקדמת עם אקשן אמיתי — חוויה שתחוש בכל הגוף.
+        </p>
+
+        <!-- HOW WE DO IT -->
+        <span class="about-intro-badge" style="margin-top: 1rem; display: block;">איך זה עובד</span>
+        <p class="about-intro" data-aos="fade-up" style="margin-bottom: 1.5rem;">
+          אנחנו מגיעים אליכם. תאמו אירוע ואנחנו נבוא עם כל הציוד, נקים זירת קרב בחלל שלכם ונעמיד טנקים עם ירי לייזר, כדורי BB, עשן ומצלמות POV — ממש אצלכם.
+        </p>
+
+        <!-- FEATURES -->
+        <div class="about-features">
+          <div class="feature-item" data-aos="fade-right" data-aos-delay="0">
+            <span class="feature-icon">📍</span>
+            <div>
+              <h4>זירה ניידת</h4>
+              <p>אנחנו מביאים את הכל אליכם — לחצר, לאולם, לפארק. בלי להזיז יד.</p>
+            </div>
+          </div>
+          <div class="feature-item" data-aos="fade-right" data-aos-delay="100">
+            <span class="feature-icon">🎮</span>
+            <div>
+              <h4>פשוט לשחק</h4>
+              <p>כל משתתף מקבל שלט ומוכן לקרב תוך 2 דקות — ללא ניסיון קודם.</p>
+            </div>
+          </div>
+          <div class="feature-item" data-aos="fade-right" data-aos-delay="200">
+            <span class="feature-icon">💥</span>
+            <div>
+              <h4>חוויה מלאה</h4>
+              <p>ירי אמיתי, עשן, אפקטים — לא סימולציה על מסך. זה קורה ממש פה.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- PROCESS BAR -->
+        <div class="about-process" data-aos="fade-up" data-aos-delay="300">
+          <div class="process-step">
+            <span class="step-icon">📅</span>
+            <span>מתאמים אירוע</span>
+          </div>
+          <span class="process-arrow">→</span>
+          <div class="process-step">
+            <span class="step-icon">🚚</span>
+            <span>אנחנו מגיעים</span>
+          </div>
+          <span class="process-arrow">→</span>
+          <div class="process-step">
+            <span class="step-icon">⚔️</span>
+            <span>הקרב מתחיל</span>
+          </div>
+        </div>
+      </div>
     </div>
   </section>
 
@@ -675,7 +702,7 @@
   </section>
 
   <!-- ============ CONTACT FORM ============ -->
-  <section class="contact closing-cta">
+  <section id="contact-form" class="contact closing-cta">
     <h2>בואו נשחק!</h2>
     <div class="form-container">
       <form id="contactForm">
@@ -858,6 +885,18 @@
       const y = (e.clientY / window.innerHeight - 0.5) * 2;
 
       gsap.to(".hero-background", { x: x * 20, y: y * 20, duration: 0.8 });
+    });
+
+  </script>
+
+  <!-- AOS Library for animations -->
+  <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+  <script>
+    // Initialize AOS
+    AOS.init({
+      once: false,
+      mirror: true,
+      duration: 800
     });
   </script>
 
