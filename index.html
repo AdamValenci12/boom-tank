@@ -735,20 +735,6 @@
     // GSAP Animations
     gsap.registerPlugin(ScrollTrigger);
 
-    // Hero entrance
-    gsap.set([".hero-title", ".tank-cannon", ".subtitle", ".btn-primary", ".scroll-down"], {
-      opacity: 0,
-      y: 30
-    });
-
-    const heroTl = gsap.timeline({ defaults: { ease: "power3.out" } });
-    heroTl
-      .to(".hero-title", { opacity: 1, y: 0, duration: 0.8 })
-      .to(".tank-cannon", { opacity: 1, y: 0, duration: 0.6 }, "-=0.4")
-      .to(".subtitle", { opacity: 1, y: 0, duration: 0.6 }, "-=0.4")
-      .to(".btn-primary", { opacity: 1, y: 0, duration: 0.5 }, "-=0.3")
-      .to(".scroll-down", { opacity: 1, y: 0, duration: 0.4 }, "-=0.2");
-
     // About section reveal
     gsap.set(".about-text h3, .about-text p, .about-visual", { opacity: 0, y: 40 });
 
@@ -821,21 +807,13 @@
       }
     });
 
-    // Tank cannon fire animation on page scroll
-    gsap.to(".cannon-fire", {
-      opacity: 0,
-      y: -100,
-      duration: 0.4,
-      repeat: -1,
-      repeatDelay: 3,
-      ease: "power1.in"
-    });
 
     // Form handling
     const form = document.getElementById("contactForm");
     const formMessage = document.getElementById("formMessage");
 
-    form.addEventListener("submit", async (e) => {
+    if (form) {
+      form.addEventListener("submit", async (e) => {
       e.preventDefault();
 
       const name = document.getElementById("name").value;
@@ -877,15 +855,7 @@
         submitBtn.textContent = "הזמן חוויה 💥";
       }
     });
-
-    // Mouse parallax effect on hero
-    const hero = document.querySelector(".hero");
-    hero.addEventListener("mousemove", (e) => {
-      const x = (e.clientX / window.innerWidth - 0.5) * 2;
-      const y = (e.clientY / window.innerHeight - 0.5) * 2;
-
-      gsap.to(".hero-background", { x: x * 20, y: y * 20, duration: 0.8 });
-    });
+    }
 
   </script>
 
