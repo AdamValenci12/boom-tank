@@ -1,0 +1,904 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BOOM TANK - חוויית הלחימה הסימולטיבית</title>
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;700;900&display=swap" rel="stylesheet">
+  <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+  <style>
+    :root {
+      --dark: #050507;
+      --orange: #f97316;
+      --light-text: #f5f5f5;
+      --muted: rgba(245, 245, 245, 0.7);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Heebo', sans-serif;
+      background-color: var(--dark);
+      color: var(--light-text);
+      overflow-x: hidden;
+    }
+
+    /* אפקט תלת-ממד עדין לקארדים */
+    .perspective-3d {
+      perspective: 1000px;
+    }
+
+    .card-3d {
+      transform-style: preserve-3d;
+      transition: transform 0.5s ease, box-shadow 0.5s ease;
+    }
+
+    .card-3d:hover {
+      transform: rotateX(10deg) rotateY(-10deg) translateZ(20px);
+    }
+
+    /* Custom animations for hero */
+    @keyframes float-up {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-20px); }
+    }
+
+    @keyframes glow-pulse {
+      0%, 100% { box-shadow: 0 0 30px rgba(249, 115, 22, 0.3); }
+      50% { box-shadow: 0 0 60px rgba(249, 115, 22, 0.6); }
+    }
+
+    .float-animation {
+      animation: float-up 3s ease-in-out infinite;
+    }
+
+    .glow-pulse {
+      animation: glow-pulse 2s ease-in-out infinite;
+    }
+
+    /* ============ SECTIONS COMMON ============ */
+    section {
+      padding: 32px 16px;
+      max-width: 100%;
+      margin: 0 auto;
+    }
+
+    section h2 {
+      font-size: 2.25rem;
+      font-weight: 900;
+      margin-bottom: 3rem;
+      color: #f97316;
+      text-align: center;
+    }
+
+    /* ============ ABOUT SECTION ============ */
+    .about {
+      background: #0a0a0a;
+    }
+
+    .about-grid {
+      display: grid;
+      grid-template-columns: 1.2fr 1fr;
+      gap: 4rem;
+      align-items: flex-start;
+      max-width: 7xl;
+      margin: 0 auto;
+    }
+
+    .about-intro {
+      font-size: 1.125rem;
+      color: var(--muted);
+      margin-bottom: 2.5rem;
+      line-height: 1.9;
+      font-weight: 500;
+    }
+
+    .about-features {
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+      margin-bottom: 2rem;
+    }
+
+    .feature-item {
+      display: flex;
+      gap: 1.5rem;
+      padding: 1.5rem;
+      background: linear-gradient(135deg, rgba(249, 115, 22, 0.08), rgba(249, 115, 22, 0.03));
+      border-left: 3px solid #f97316;
+      border-radius: 8px;
+      transition: all 0.3s ease;
+    }
+
+    .feature-item:hover {
+      background: linear-gradient(135deg, rgba(249, 115, 22, 0.15), rgba(249, 115, 22, 0.08));
+      border-left-color: #fbbf24;
+      transform: translateX(10px);
+    }
+
+    .feature-icon {
+      font-size: 2.5rem;
+      flex-shrink: 0;
+    }
+
+    .feature-item h4 {
+      font-size: 1.125rem;
+      color: #f97316;
+      margin-bottom: 0.5rem;
+      font-weight: 700;
+    }
+
+    .feature-item p {
+      font-size: 0.9375rem;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    .about-closing {
+      font-size: 1.0625rem;
+      color: #f97316;
+      font-weight: 600;
+      text-align: center;
+      padding: 1.5rem;
+      background: rgba(249, 115, 22, 0.1);
+      border-radius: 8px;
+      border: 1px solid rgba(249, 115, 22, 0.3);
+    }
+
+    .about-visual {
+      width: 100%;
+      height: 500px;
+      background: linear-gradient(135deg, rgba(249, 115, 22, 0.2), rgba(249, 115, 22, 0.1));
+      border: 2px solid #f97316;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 0 40px rgba(249, 115, 22, 0.2);
+    }
+
+    .about-visual video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    /* About badges */
+    .about-intro-badge {
+      display: inline-block;
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: #f97316;
+      border: 1px solid rgba(249,115,22,0.4);
+      padding: 3px 12px;
+      border-radius: 20px;
+      margin-bottom: 0.6rem;
+    }
+
+    /* Process bar */
+    .about-process {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 1rem;
+      padding: 1.25rem 1.5rem;
+      background: rgba(249,115,22,0.06);
+      border-radius: 12px;
+      border: 1px solid rgba(249,115,22,0.2);
+      flex-wrap: wrap;
+      margin-top: 0.5rem;
+    }
+
+    .process-step {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      font-size: 0.8rem;
+      color: var(--muted);
+      font-weight: 600;
+      text-align: center;
+    }
+
+    .process-step .step-icon {
+      font-size: 1.4rem;
+    }
+
+    .process-arrow {
+      color: rgba(249,115,22,0.5);
+      font-size: 1.1rem;
+      flex-shrink: 0;
+    }
+
+    /* ============ FEATURES SECTION ============ */
+    .features {
+      background: #050507;
+    }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2.5rem;
+      max-width: 7xl;
+      margin: 0 auto;
+    }
+
+    .feature-card {
+      background: linear-gradient(135deg, rgba(249, 115, 22, 0.1), rgba(249, 115, 22, 0.05));
+      border: 2px solid #f97316;
+      border-radius: 12px;
+      padding: 2.5rem;
+      text-align: center;
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+
+    .feature-card:hover {
+      transform: translateY(-12px);
+      border-color: #fbbf24;
+      box-shadow: 0 0 30px rgba(249, 115, 22, 0.4);
+    }
+
+    .feature-icon {
+      font-size: 3.5rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .feature-card h3 {
+      font-size: 1.375rem;
+      color: #fbbf24;
+      margin-bottom: 0.9375rem;
+      font-weight: 700;
+    }
+
+    .feature-card p {
+      font-size: 1rem;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    /* ============ GAME MODES SECTION ============ */
+    .game-modes {
+      background: #0a0a0a;
+    }
+
+    .modes-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2.5rem;
+      max-width: 7xl;
+      margin: 0 auto;
+    }
+
+    .mode-card {
+      background: linear-gradient(135deg, rgba(251, 191, 36, 0.15), rgba(249, 115, 22, 0.1));
+      border: 2px solid #fbbf24;
+      border-radius: 12px;
+      padding: 3.125rem 1.875rem;
+      text-align: center;
+      transition: all 0.4s ease;
+    }
+
+    .mode-card:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 40px rgba(251, 191, 36, 0.3);
+    }
+
+    .mode-emoji {
+      font-size: 4rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .mode-card h3 {
+      font-size: 1.75rem;
+      color: #f97316;
+      margin-bottom: 0.9375rem;
+      font-weight: 700;
+    }
+
+    .mode-card p {
+      font-size: 1rem;
+      color: var(--muted);
+    }
+
+    /* ============ ADVANTAGES SECTION ============ */
+    .advantages {
+      background: #050507;
+    }
+
+    .advantages-list {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 2.5rem;
+      max-width: 7xl;
+      margin: 0 auto;
+    }
+
+    .advantage-item {
+      display: flex;
+      gap: 1.25rem;
+      padding: 1.25rem;
+      border-left: 4px solid #f97316;
+      transition: all 0.3s ease;
+    }
+
+    .advantage-item:hover {
+      border-left-color: #fbbf24;
+      transform: translateX(10px);
+    }
+
+    .advantage-emoji {
+      font-size: 3rem;
+      flex-shrink: 0;
+    }
+
+    .advantage-item h3 {
+      font-size: 1.25rem;
+      color: #fbbf24;
+      margin-bottom: 0.5rem;
+      font-weight: 700;
+    }
+
+    .advantage-item p {
+      font-size: 0.9375rem;
+      color: var(--muted);
+    }
+
+    /* ============ FORM SECTION ============ */
+    .contact {
+      background: linear-gradient(135deg, rgba(249, 115, 22, 0.1), rgba(249, 115, 22, 0.05));
+      border: 2px solid #f97316;
+      border-radius: 12px;
+      max-width: 7xl;
+      margin: 0 auto;
+    }
+
+    .form-container {
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: #fbbf24;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .form-group input,
+    .form-group textarea {
+      width: 100%;
+      padding: 0.875rem;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid #f97316;
+      border-radius: 8px;
+      color: var(--light-text);
+      font-family: 'Heebo', sans-serif;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+    }
+
+    .form-group input:focus,
+    .form-group textarea:focus {
+      outline: none;
+      background: rgba(249, 115, 22, 0.1);
+      border-color: #fbbf24;
+      box-shadow: 0 0 15px rgba(249, 115, 22, 0.3);
+    }
+
+    .form-group textarea {
+      resize: vertical;
+      min-height: 100px;
+    }
+
+    .form-submit {
+      width: 100%;
+      padding: 1rem;
+      background: linear-gradient(135deg, #f97316, #ea580c);
+      color: #000;
+      border: none;
+      border-radius: 50px;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      font-family: 'Heebo', sans-serif;
+      transition: all 0.3s ease;
+      box-shadow: 0 0 30px rgba(249, 115, 22, 0.4);
+    }
+
+    .form-submit:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 0 50px rgba(249, 115, 22, 0.8);
+    }
+
+    .form-submit:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .form-message {
+      text-align: center;
+      padding: 1rem;
+      margin-top: 1rem;
+      border-radius: 8px;
+      font-weight: 600;
+      display: none;
+    }
+
+    .form-message.success {
+      background: rgba(0, 200, 83, 0.2);
+      color: #00c853;
+      border: 1px solid #00c853;
+    }
+
+    .form-message.error {
+      background: rgba(249, 115, 22, 0.2);
+      color: #f97316;
+      border: 1px solid #f97316;
+    }
+
+    /* ============ RESPONSIVE ============ */
+    @media (max-width: 900px) {
+      .about-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .features-grid,
+      .modes-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .advantages-list {
+        grid-template-columns: 1fr;
+      }
+
+      section {
+        padding: 5rem 1.25rem;
+      }
+
+      section h2 {
+        margin-bottom: 2.5rem;
+      }
+    }
+
+    @media (max-width: 580px) {
+      .features-grid,
+      .modes-grid {
+        grid-template-columns: 1fr;
+      }
+
+      section {
+        padding: 3.75rem 1rem;
+      }
+
+      section h2 {
+        font-size: 2rem;
+        margin-bottom: 1.875rem;
+      }
+
+      .about-visual {
+        height: 250px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ============ HERO SECTION ============ -->
+  <section class="relative min-h-screen flex items-center justify-center px-4 overflow-hidden">
+    <!-- Video background with overlay content -->
+    <div class="absolute inset-0 z-0">
+      <video
+        src="./videos/BOOM TANK.mp4"
+        autoplay
+        loop
+        muted
+        playsinline
+        class="w-full h-full object-cover"
+      ></video>
+      <!-- Dark overlay for text readability -->
+      <div class="absolute inset-0 bg-black/40"></div>
+    </div>
+
+    <!-- Content overlay (centered in video) -->
+    <div class="relative z-10 w-full h-full flex flex-col items-center justify-center px-4">
+      <!-- Logo -->
+      <h1 class="text-7xl md:text-8xl lg:text-9xl font-black tracking-wider uppercase mb-6" style="background: linear-gradient(135deg, #fbbf24 0%, #f97316 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; text-shadow: 0 0 50px rgba(249, 115, 22, 0.5);">
+        BOOM TANK
+      </h1>
+
+      <!-- Subtitle -->
+      <p class="text-lg md:text-2xl text-white font-semibold mb-24 leading-relaxed">
+        זירת לחימה סימולטיבית של טנקים על שלט רחוק
+      </p>
+    </div>
+
+    <!-- Center Button -->
+    <!-- Centered button (bottom center) - Professional Design -->
+    <a href="#contact-form" style="padding: 15px 75px;" class="absolute bottom-32 left-1/2 transform -translate-x-1/2 z-20 bg-gradient-to-r from-orange-500/30 to-orange-600/20 border-2 border-orange-400/70 hover:border-orange-300 hover:from-orange-500/40 hover:to-orange-600/30 font-bold text-3xl rounded-xl transition-all duration-300 hover:shadow-[0_0_120px_rgba(249,115,22,0.8)] text-white transform hover:scale-105 backdrop-blur-lg hover:backdrop-blur-xl whitespace-nowrap tracking-wider">
+      לפרטים נוספים
+    </a>
+
+    <!-- Scroll hint -->
+    <div class="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-10 animate-bounce">
+      <p class="text-zinc-300 text-sm font-medium">גלול למטה ↓</p>
+    </div>
+  </section>
+
+  <!-- ============ ABOUT ============ -->
+  <section id="about-section" class="about">
+    <h2 style="background: linear-gradient(135deg, #fbbf24 0%, #f97316 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; text-shadow: 0 0 50px rgba(249, 115, 22, 0.4);">מי אנחנו</h2>
+    <div class="about-grid">
+      <div class="about-visual">
+        <video
+          src="./videos/BOOMTANK2.mp4"
+          autoplay
+          loop
+          muted
+          playsinline
+          class="w-full h-full object-cover"
+          style="border-radius: 12px;"
+        ></video>
+      </div>
+      <div class="about-text">
+        <!-- WHO WE ARE -->
+        <span class="about-intro-badge">מי אנחנו</span>
+        <p class="about-intro" data-aos="fade-up">
+          BOOM TANK היא זירת לחימה סימולטיבית של טנקים על שלט, שמשלבת טכנולוגיה מתקדמת עם אקשן אמיתי — חוויה שתחוש בכל הגוף.
+        </p>
+
+        <!-- HOW WE DO IT -->
+        <span class="about-intro-badge" style="margin-top: 1rem; display: block;">איך זה עובד</span>
+        <p class="about-intro" data-aos="fade-up" style="margin-bottom: 1.5rem;">
+          אנחנו מגיעים אליכם. תאמו אירוע ואנחנו נבוא עם כל הציוד, נקים זירת קרב בחלל שלכם ונעמיד טנקים עם ירי לייזר, כדורי BB, עשן ומצלמות POV — ממש אצלכם.
+        </p>
+
+        <!-- FEATURES -->
+        <div class="about-features">
+          <div class="feature-item" data-aos="fade-right" data-aos-delay="0">
+            <span class="feature-icon">📍</span>
+            <div>
+              <h4>זירה ניידת</h4>
+              <p>אנחנו מביאים את הכל אליכם — לחצר, לאולם, לפארק. בלי להזיז יד.</p>
+            </div>
+          </div>
+          <div class="feature-item" data-aos="fade-right" data-aos-delay="100">
+            <span class="feature-icon">🎮</span>
+            <div>
+              <h4>פשוט לשחק</h4>
+              <p>כל משתתף מקבל שלט ומוכן לקרב תוך 2 דקות — ללא ניסיון קודם.</p>
+            </div>
+          </div>
+          <div class="feature-item" data-aos="fade-right" data-aos-delay="200">
+            <span class="feature-icon">💥</span>
+            <div>
+              <h4>חוויה מלאה</h4>
+              <p>ירי אמיתי, עשן, אפקטים — לא סימולציה על מסך. זה קורה ממש פה.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- PROCESS BAR -->
+        <div class="about-process" data-aos="fade-up" data-aos-delay="300">
+          <div class="process-step">
+            <span class="step-icon">📅</span>
+            <span>מתאמים אירוע</span>
+          </div>
+          <span class="process-arrow">→</span>
+          <div class="process-step">
+            <span class="step-icon">🚚</span>
+            <span>אנחנו מגיעים</span>
+          </div>
+          <span class="process-arrow">→</span>
+          <div class="process-step">
+            <span class="step-icon">⚔️</span>
+            <span>הקרב מתחיל</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ FEATURES ============ -->
+  <section class="features">
+    <h2>הטכנולוגיה שלנו</h2>
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon">🔴</div>
+        <h3>ירי לייזר IR</h3>
+        <p>ירי לייזר בעוצמה אמיתית. כל זריקה פוגעת וגורמת נזק אמיתי!</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">💨</div>
+        <h3>כדורי BB + עשן</h3>
+        <p>אפקטים אמיתיים בשדה הקרב — אתה רואה וחש את הפיצוץ!</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📹</div>
+        <h3>מצלמת POV</h3>
+        <p>ראה את הקרב דרך עיני הטנק! חיבור ישיר למסך השלט.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ GAME MODES ============ -->
+  <section class="game-modes">
+    <h2>המודים</h2>
+    <div class="modes-grid">
+      <div class="mode-card">
+        <div class="mode-emoji">🔥</div>
+        <h3>Free For All</h3>
+        <p>כולם נגד כולם! המטנק האחרון שנותר ניצח!</p>
+      </div>
+      <div class="mode-card">
+        <div class="mode-emoji">🚩</div>
+        <h3>Capture The Flag</h3>
+        <p>גנוב את דגל הצד השני! עבודת צוות ואסטרטגיה.</p>
+      </div>
+      <div class="mode-card">
+        <div class="mode-emoji">🎯</div>
+        <h3>Domination</h3>
+        <p>שלוט ב-3 נקודות (A, B, C). הצד עם הנקודות הרב משוחק!</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ ADVANTAGES ============ -->
+  <section class="advantages">
+    <h2>למה BOOM TANK?</h2>
+    <div class="advantages-list">
+      <div class="advantage-item">
+        <div class="advantage-emoji">⚡</div>
+        <div>
+          <h3>אקשן ממש</h3>
+          <p>לא משחק וידיאו — זו חוויה פיזית אמיתית עם מכות וירי!</p>
+        </div>
+      </div>
+      <div class="advantage-item">
+        <div class="advantage-emoji">🎮</div>
+        <div>
+          <h3>טכנולוגיה ייחודית</h3>
+          <p>שילוב של RC טנקים, לייזר, BB וPOV — לא קיים בארץ!</p>
+        </div>
+      </div>
+      <div class="advantage-item">
+        <div class="advantage-emoji">👨‍👩‍👧‍👦</div>
+        <div>
+          <h3>לכל הגילאים</h3>
+          <p>ילדים, נערים, משפחות וחברים — כולם יכולים לשחק!</p>
+        </div>
+      </div>
+      <div class="advantage-item">
+        <div class="advantage-emoji">🏆</div>
+        <div>
+          <h3>תחרותיות + כיף</h3>
+          <p>זה משעשע, מתסכל (בצורה טובה!) ובטוח — זה אדרנלין!</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ CONTACT FORM ============ -->
+  <section id="contact-form" class="contact closing-cta">
+    <h2>בואו נשחק!</h2>
+    <div class="form-container">
+      <form id="contactForm">
+        <div class="form-group">
+          <label for="name">שם מלא *</label>
+          <input type="text" id="name" name="name" required>
+        </div>
+        <div class="form-group">
+          <label for="phone">טלפון *</label>
+          <input type="tel" id="phone" name="phone" required>
+        </div>
+        <div class="form-group">
+          <label for="email">אימייל *</label>
+          <input type="email" id="email" name="email" required>
+        </div>
+        <div class="form-group">
+          <label for="message">הערה (אופציונלי)</label>
+          <textarea id="message" name="message"></textarea>
+        </div>
+        <button type="submit" class="form-submit">הזמן חוויה 💥</button>
+        <div id="formMessage" class="form-message"></div>
+      </form>
+    </div>
+  </section>
+
+  <script>
+    // EmailJS Configuration
+    emailjs.init("UxjlhmG1VR9BPOdvw");
+
+    // GSAP Animations
+    gsap.registerPlugin(ScrollTrigger);
+
+    // Hero entrance
+    gsap.set([".hero-title", ".tank-cannon", ".subtitle", ".btn-primary", ".scroll-down"], {
+      opacity: 0,
+      y: 30
+    });
+
+    const heroTl = gsap.timeline({ defaults: { ease: "power3.out" } });
+    heroTl
+      .to(".hero-title", { opacity: 1, y: 0, duration: 0.8 })
+      .to(".tank-cannon", { opacity: 1, y: 0, duration: 0.6 }, "-=0.4")
+      .to(".subtitle", { opacity: 1, y: 0, duration: 0.6 }, "-=0.4")
+      .to(".btn-primary", { opacity: 1, y: 0, duration: 0.5 }, "-=0.3")
+      .to(".scroll-down", { opacity: 1, y: 0, duration: 0.4 }, "-=0.2");
+
+    // About section reveal
+    gsap.set(".about-text h3, .about-text p, .about-visual", { opacity: 0, y: 40 });
+
+    ScrollTrigger.batch(".about-text h3, .about-text p, .about-visual", {
+      start: "top 80%",
+      onEnter: batch => gsap.to(batch, {
+        opacity: 1,
+        y: 0,
+        duration: 0.6,
+        stagger: 0.1,
+        ease: "power2.out"
+      })
+    });
+
+    // Feature cards reveal with rotateX
+    gsap.set(".feature-card", { opacity: 0, y: 50, rotateX: 20 });
+
+    ScrollTrigger.batch(".feature-card", {
+      start: "top 80%",
+      onEnter: batch => gsap.to(batch, {
+        opacity: 1,
+        y: 0,
+        rotateX: 0,
+        duration: 0.7,
+        stagger: 0.15,
+        ease: "back.out"
+      })
+    });
+
+    // Mode cards reveal
+    gsap.set(".mode-card", { opacity: 0, y: 50, scale: 0.9 });
+
+    ScrollTrigger.batch(".mode-card", {
+      start: "top 80%",
+      onEnter: batch => gsap.to(batch, {
+        opacity: 1,
+        y: 0,
+        scale: 1,
+        duration: 0.7,
+        stagger: 0.15,
+        ease: "elastic.out(1, 0.5)"
+      })
+    });
+
+    // Advantages items reveal
+    gsap.set(".advantage-item", { opacity: 0, x: -40 });
+
+    ScrollTrigger.batch(".advantage-item", {
+      start: "top 80%",
+      onEnter: batch => gsap.to(batch, {
+        opacity: 1,
+        x: 0,
+        duration: 0.6,
+        stagger: 0.1,
+        ease: "power2.out"
+      })
+    });
+
+    // Contact form reveal
+    gsap.set(".form-container", { opacity: 0, y: 60 });
+
+    gsap.to(".form-container", {
+      opacity: 1,
+      y: 0,
+      duration: 0.8,
+      ease: "power2.out",
+      scrollTrigger: {
+        trigger: ".contact",
+        start: "top 70%"
+      }
+    });
+
+    // Tank cannon fire animation on page scroll
+    gsap.to(".cannon-fire", {
+      opacity: 0,
+      y: -100,
+      duration: 0.4,
+      repeat: -1,
+      repeatDelay: 3,
+      ease: "power1.in"
+    });
+
+    // Form handling
+    const form = document.getElementById("contactForm");
+    const formMessage = document.getElementById("formMessage");
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const name = document.getElementById("name").value;
+      const phone = document.getElementById("phone").value;
+      const email = document.getElementById("email").value;
+      const message = document.getElementById("message").value;
+
+      const submitBtn = form.querySelector(".form-submit");
+      submitBtn.disabled = true;
+      submitBtn.textContent = "שולח...";
+
+      try {
+        // Send email via EmailJS
+        await emailjs.send("service_qwqwava", "template_i4hphkg", {
+          name: name,
+          email: email,
+          phone: phone,
+          message: message || "בלי הערה"
+        });
+
+        formMessage.textContent = "✅ תודה! נחזור אליך בקרוב!";
+        formMessage.classList.add("success");
+        formMessage.classList.remove("error");
+        formMessage.style.display = "block";
+
+        form.reset();
+
+        setTimeout(() => {
+          formMessage.style.display = "none";
+        }, 5000);
+      } catch (error) {
+        console.error("Error sending email:", error);
+        formMessage.textContent = "❌ שגיאה בשליחה. אנא נסה שוב.";
+        formMessage.classList.add("error");
+        formMessage.classList.remove("success");
+        formMessage.style.display = "block";
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = "הזמן חוויה 💥";
+      }
+    });
+
+    // Mouse parallax effect on hero
+    const hero = document.querySelector(".hero");
+    hero.addEventListener("mousemove", (e) => {
+      const x = (e.clientX / window.innerWidth - 0.5) * 2;
+      const y = (e.clientY / window.innerHeight - 0.5) * 2;
+
+      gsap.to(".hero-background", { x: x * 20, y: y * 20, duration: 0.8 });
+    });
+
+  </script>
+
+  <!-- AOS Library for animations -->
+  <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+  <script>
+    // Initialize AOS
+    AOS.init({
+      once: false,
+      mirror: true,
+      duration: 800
+    });
+  </script>
+
+</body>
+</html>

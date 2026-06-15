@@ -1,0 +1,39 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell(Add-Type -AssemblyName System.Windows.Forms; [System.Windows.Forms.SendKeys]::SendWait\\('F5'\\); Start-Sleep -Seconds 3)",
+      "PowerShell(Add-Type -AssemblyName System.Windows.Forms; Add-Type -AssemblyName System.Drawing; $screen = [System.Windows.Forms.Screen]::PrimaryScreen; $bitmap = New-Object System.Drawing.Bitmap\\($screen.Bounds.Width, $screen.Bounds.Height\\); $graphics = [System.Drawing.Graphics]::FromImage\\($bitmap\\); $graphics.CopyFromScreen\\($screen.Bounds.Location, [System.Drawing.Point]::Empty, $screen.Bounds.Size\\); $screenshotPath = \"$env:TEMP\\\\hero_redesign_1.png\"; $bitmap.Save\\($screenshotPath\\); $graphics.Dispose\\(\\); $bitmap.Dispose\\(\\); Write-Host \"Screenshot saved: $screenshotPath\")",
+      "PowerShell(Start-Sleep -Seconds 3; Add-Type -AssemblyName System.Windows.Forms; [System.Windows.Forms.SendKeys]::SendWait\\('{Home}'\\); Start-Sleep -Seconds 1; Add-Type -AssemblyName System.Drawing; $screen = [System.Windows.Forms.Screen]::PrimaryScreen; $bitmap = New-Object System.Drawing.Bitmap\\($screen.Bounds.Width, $screen.Bounds.Height\\); $graphics = [System.Drawing.Graphics]::FromImage\\($bitmap\\); $graphics.CopyFromScreen\\($screen.Bounds.Location, [System.Drawing.Point]::Empty, $screen.Bounds.Size\\); $screenshotPath = \"$env:TEMP\\\\hero_redesign_2.png\"; $bitmap.Save\\($screenshotPath\\); $graphics.Dispose\\(\\); $bitmap.Dispose\\(\\); Write-Host \"Screenshot saved\")",
+      "PowerShell(for \\($i=0; $i -lt 2; $i++\\) { Start-Sleep -Seconds 3.5; Add-Type -AssemblyName System.Windows.Forms; Add-Type -AssemblyName System.Drawing; $screen = [System.Windows.Forms.Screen]::PrimaryScreen; $bitmap = New-Object System.Drawing.Bitmap\\($screen.Bounds.Width, $screen.Bounds.Height\\); $graphics = [System.Drawing.Graphics]::FromImage\\($bitmap\\); $graphics.CopyFromScreen\\($screen.Bounds.Location, [System.Drawing.Point]::Empty, $screen.Bounds.Size\\); $screenshotPath = \"$env:TEMP\\\\hero_redesign_$\\($i+3\\).png\"; $bitmap.Save\\($screenshotPath\\); $graphics.Dispose\\(\\); $bitmap.Dispose\\(\\); Write-Host \"Screenshot $\\($i+3\\) saved\" })",
+      "PowerShell(Add-Type -AssemblyName System.Windows.Forms; [System.Windows.Forms.SendKeys]::SendWait\\('^{w}'\\); Start-Sleep -Seconds 1)",
+      "PowerShell(Add-Type -AssemblyName System.Windows.Forms; Add-Type -AssemblyName System.Drawing; Start-Sleep -Seconds 1; $screen = [System.Windows.Forms.Screen]::PrimaryScreen; $bitmap = New-Object System.Drawing.Bitmap\\($screen.Bounds.Width, $screen.Bounds.Height\\); $graphics = [System.Drawing.Graphics]::FromImage\\($bitmap\\); $graphics.CopyFromScreen\\($screen.Bounds.Location, [System.Drawing.Point]::Empty, $screen.Bounds.Size\\); $screenshotPath = \"$env:TEMP\\\\hero_final.png\"; $bitmap.Save\\($screenshotPath\\); $graphics.Dispose\\(\\); $bitmap.Dispose\\(\\); Write-Host \"Screenshot saved\")",
+      "PowerShell(Add-Type -AssemblyName System.Windows.Forms; Add-Type -AssemblyName System.Drawing; $screen = [System.Windows.Forms.Screen]::PrimaryScreen; $bitmap = New-Object System.Drawing.Bitmap\\($screen.Bounds.Width, $screen.Bounds.Height\\); $graphics = [System.Drawing.Graphics]::FromImage\\($bitmap\\); $graphics.CopyFromScreen\\($screen.Bounds.Location, [System.Drawing.Point]::Empty, $screen.Bounds.Size\\); $screenshotPath = \"$env:TEMP\\\\hero_clean_final.png\"; $bitmap.Save\\($screenshotPath\\); $graphics.Dispose\\(\\); $bitmap.Dispose\\(\\); Write-Host \"Screenshot saved\")",
+      "PowerShell(Add-Type -AssemblyName System.Windows.Forms; [System.Windows.Forms.SendKeys]::SendWait\\('^{Home}'\\); Start-Sleep -Seconds 2)",
+      "PowerShell(Add-Type -AssemblyName System.Windows.Forms; Add-Type -AssemblyName System.Drawing; $screen = [System.Windows.Forms.Screen]::PrimaryScreen; $bitmap = New-Object System.Drawing.Bitmap\\($screen.Bounds.Width, $screen.Bounds.Height\\); $graphics = [System.Drawing.Graphics]::FromImage\\($bitmap\\); $graphics.CopyFromScreen\\($screen.Bounds.Location, [System.Drawing.Point]::Empty, $screen.Bounds.Size\\); $screenshotPath = \"$env:TEMP\\\\boom_tank_hero_final.png\"; $bitmap.Save\\($screenshotPath\\); $graphics.Dispose\\(\\); $bitmap.Dispose\\(\\); Write-Host \"Screenshot saved\")",
+      "PowerShell(Add-Type -AssemblyName System.Windows.Forms; Add-Type -AssemblyName System.Drawing; Start-Sleep -Seconds 1; $screen = [System.Windows.Forms.Screen]::PrimaryScreen; $bitmap = New-Object System.Drawing.Bitmap\\($screen.Bounds.Width, $screen.Bounds.Height\\); $graphics = [System.Drawing.Graphics]::FromImage\\($bitmap\\); $graphics.CopyFromScreen\\($screen.Bounds.Location, [System.Drawing.Point]::Empty, $screen.Bounds.Size\\); $screenshotPath = \"$env:TEMP\\\\boom_tank_hero_refreshed.png\"; $bitmap.Save\\($screenshotPath\\); $graphics.Dispose\\(\\); $bitmap.Dispose\\(\\); Write-Host \"Screenshot saved\")",
+      "PowerShell(Start-Sleep -Seconds 2; Add-Type -AssemblyName System.Windows.Forms; Add-Type -AssemblyName System.Drawing; $screen = [System.Windows.Forms.Screen]::PrimaryScreen; $bitmap = New-Object System.Drawing.Bitmap\\($screen.Bounds.Width, $screen.Bounds.Height\\); $graphics = [System.Drawing.Graphics]::FromImage\\($bitmap\\); $graphics.CopyFromScreen\\($screen.Bounds.Location, [System.Drawing.Point]::Empty, $screen.Bounds.Size\\); $screenshotPath = \"$env:TEMP\\\\boom_tank_canvas_view.png\"; $bitmap.Save\\($screenshotPath\\); $graphics.Dispose\\(\\); $bitmap.Dispose\\(\\); Write-Host \"Screenshot saved\")",
+      "PowerShell(Add-Type -AssemblyName System.Windows.Forms; [System.Windows.Forms.SendKeys]::SendWait\\('F12'\\); Start-Sleep -Seconds 1)",
+      "PowerShell(Add-Type -AssemblyName System.Windows.Forms; Add-Type -AssemblyName System.Drawing; $screen = [System.Windows.Forms.Screen]::PrimaryScreen; $bitmap = New-Object System.Drawing.Bitmap\\($screen.Bounds.Width, $screen.Bounds.Height\\); $graphics = [System.Drawing.Graphics]::FromImage\\($bitmap\\); $graphics.CopyFromScreen\\($screen.Bounds.Location, [System.Drawing.Point]::Empty, $screen.Bounds.Size\\); $screenshotPath = \"$env:TEMP\\\\boom_tank_final_hero.png\"; $bitmap.Save\\($screenshotPath\\); $graphics.Dispose\\(\\); $bitmap.Dispose\\(\\); Write-Host \"Screenshot saved\")",
+      "PowerShell(Add-Type -AssemblyName System.Windows.Forms; [System.Windows.Forms.SendKeys]::SendWait\\('F12'\\); Start-Sleep -Seconds 2; Add-Type -AssemblyName System.Drawing; $screen = [System.Windows.Forms.Screen]::PrimaryScreen; $bitmap = New-Object System.Drawing.Bitmap\\($screen.Bounds.Width, $screen.Bounds.Height\\); $graphics = [System.Drawing.Graphics]::FromImage\\($bitmap\\); $graphics.CopyFromScreen\\($screen.Bounds.Location, [System.Drawing.Point]::Empty, $screen.Bounds.Size\\); $screenshotPath = \"$env:TEMP\\\\boom_tank_hero_no_devtools.png\"; $bitmap.Save\\($screenshotPath\\); $graphics.Dispose\\(\\); $bitmap.Dispose\\(\\); Write-Host \"Screenshot saved\")",
+      "Bash(Start-Sleep -Seconds 2)",
+      "Bash(Write-Host \"הדפדפן אמור להיות פתוח עכשיו\")",
+      "Bash(python -c \"import cv2; print\\(cv2.__version__\\)\")",
+      "Bash(pip install *)",
+      "PowerShell(python -m pip install opencv-python pillow)",
+      "Read(//c/Users/ASUS K3500P/Desktop/Webpage Mini Tanks/landing-pages/videos/**)",
+      "PowerShell(cd \"c:\\\\Users\\\\ASUS K3500P\\\\Desktop\\\\Webpage Mini Tanks\\\\landing-pages\\\\videos\"; $file = Get-Item \"BOOMTANK2.mp4\"; \"File size: $\\($file.Length\\) bytes\"; \"Last modified: $\\($file.LastWriteTime\\)\")",
+      "Bash(gh api *)",
+      "Bash(cd \"c:\\\\Users\\\\ASUS K3500P\\\\Desktop\\\\Webpage Mini Tanks\\\\landing-pages\" && mv boom-tank.html index.html && ls -la)"
+    ],
+    "additionalDirectories": [
+      "c:\\Users\\ASUS K3500P\\Desktop\\Webpage Mini Tanks\\landing-pages"
+    ]
+  },
+  "skills": [
+    {
+      "name": "landing",
+      "path": "./.claude/skills/landing",
+      "enabled": true
+    }
+  ]
+}
