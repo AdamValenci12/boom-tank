@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BOOM TANK — Admin</title>
+  <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;600;700&family=Heebo:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --orange:      #F97316;
+      --orange-dark: #EA580C;
+      --ink:         #16181D;
+      --ink-soft:    #44474E;
+      --ink-muted:   #6B7078;
+      --bg:          #FAF8F5;
+      --bg-card:     #FFFFFF;
+      --border:      #E7E2DA;
+      --font-tech:   'Chakra Petch', 'Heebo', sans-serif;
+      --font-body:   'Heebo', sans-serif;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: var(--font-body); background: var(--bg); color: var(--ink-soft); min-height: 100vh; }
+
+    /* ── Header ── */
+    .admin-header {
+      background: var(--ink);
+      padding: 1rem 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .admin-logo {
+      font-family: var(--font-tech);
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--orange);
+      letter-spacing: 1px;
+    }
+    .admin-logout {
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 8px;
+      padding: 0.4rem 1rem;
+      font-family: var(--font-tech);
+      font-size: 0.85rem;
+      color: #fff;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .admin-logout:hover { background: rgba(255,255,255,0.15); }
+
+    /* ── Login screen ── */
+    #loginScreen {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: calc(100vh - 58px);
+      padding: 2rem;
+    }
+    .login-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 2.5rem 2rem;
+      width: 100%;
+      max-width: 380px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.07);
+    }
+    .login-card h2 {
+      font-family: var(--font-tech);
+      font-size: 1.4rem;
+      color: var(--ink);
+      margin-bottom: 0.4rem;
+    }
+    .login-card p { color: var(--ink-muted); font-size: 0.9rem; margin-bottom: 1.75rem; }
+
+    label {
+      display: block;
+      font-family: var(--font-tech);
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--ink-muted);
+      letter-spacing: 0.5px;
+      margin-bottom: 0.35rem;
+    }
+    input[type="email"], input[type="password"] {
+      width: 100%;
+      padding: 0.65rem 0.9rem;
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      font-family: var(--font-body);
+      font-size: 0.95rem;
+      color: var(--ink);
+      background: var(--bg);
+      margin-bottom: 1rem;
+      transition: border-color 0.2s;
+      outline: none;
+    }
+    input:focus { border-color: var(--orange); }
+
+    .btn-primary {
+      width: 100%;
+      padding: 0.75rem;
+      background: var(--orange);
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      font-family: var(--font-tech);
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.15s;
+    }
+    .btn-primary:hover { background: var(--orange-dark); transform: translateY(-1px); }
+    .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+    .login-error {
+      color: #ef4444;
+      font-size: 0.88rem;
+      margin-top: 0.75rem;
+      text-align: center;
+      min-height: 1.2em;
+    }
+
+    /* ── Admin panel ── */
+    #adminPanel { display: none; padding: 2rem; max-width: 1000px; margin: 0 auto; }
+
+    .admin-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+      align-items: start;
+    }
+
+    .admin-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 1.75rem;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+    }
+    .admin-card h3 {
+      font-family: var(--font-tech);
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--ink);
+      margin-bottom: 1.25rem;
+      display: flex; align-items: center; gap: 0.5rem;
+    }
+    .admin-card h3 svg { width: 18px; height: 18px; color: var(--orange); }
+
+    /* Calendar (reuse classes from index, redefined here) */
+    .cal-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:1rem; }
+    .cal-month-label { font-family:var(--font-tech); font-weight:700; font-size:1rem; color:var(--ink); }
+    .cal-nav {
+      background:none; border:1px solid var(--border); border-radius:8px;
+      width:32px; height:32px; font-size:1.25rem; color:var(--orange);
+      cursor:pointer; display:grid; place-items:center; transition:background 0.2s;
+    }
+    .cal-nav:hover { background:rgba(249,115,22,0.1); }
+    .cal-grid { display:grid; grid-template-columns:repeat(7,1fr); gap:4px; }
+    .cal-dow { text-align:center; font-family:var(--font-tech); font-size:0.72rem; font-weight:700; color:var(--ink-muted); padding:4px 0 8px; }
+    .cal-cell { aspect-ratio:1; display:grid; place-items:center; border-radius:8px; font-family:var(--font-tech); font-size:0.88rem; font-weight:600; transition:all 0.15s; }
+    .cal-available { color:var(--ink); cursor:pointer; }
+    .cal-available:hover { background:rgba(249,115,22,0.12); color:var(--orange); }
+    .cal-disabled { color:var(--border); }
+    .cal-blocked-admin { background:rgba(239,68,68,0.1); color:#ef4444; cursor:pointer; border:1.5px solid rgba(239,68,68,0.3); }
+    .cal-blocked-admin:hover { background:rgba(239,68,68,0.2); }
+    .cal-selected-admin { background:var(--orange) !important; color:#fff !important; }
+    .cal-loading { text-align:center; padding:2rem; color:var(--ink-muted); font-family:var(--font-tech); font-size:0.9rem; }
+
+    /* Hour grid (admin) */
+    .admin-hour-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-bottom:1.25rem; }
+    .admin-hour-cell {
+      padding:0.55rem 0.25rem; text-align:center; border-radius:8px;
+      font-family:var(--font-tech); font-size:0.85rem; font-weight:600;
+      border:1.5px solid var(--border); color:var(--ink); cursor:pointer; transition:all 0.15s;
+    }
+    .admin-hour-cell:hover { border-color:var(--orange); color:var(--orange); background:rgba(249,115,22,0.08); }
+    .admin-hour-blocked { background:rgba(239,68,68,0.1) !important; color:#ef4444 !important; border-color:rgba(239,68,68,0.4) !important; }
+
+    .admin-action-row { display:flex; flex-direction:column; gap:0.75rem; margin-top:0.5rem; }
+    .btn-danger {
+      padding:0.6rem 1rem; background:#ef4444; color:#fff; border:none; border-radius:8px;
+      font-family:var(--font-tech); font-size:0.9rem; font-weight:700; cursor:pointer; transition:background 0.2s;
+    }
+    .btn-danger:hover { background:#dc2626; }
+    .btn-secondary {
+      padding:0.6rem 1rem; background:transparent; color:var(--orange);
+      border:1.5px solid var(--orange); border-radius:8px;
+      font-family:var(--font-tech); font-size:0.9rem; font-weight:700; cursor:pointer; transition:all 0.2s;
+    }
+    .btn-secondary:hover { background:var(--orange); color:#fff; }
+
+    .admin-status {
+      font-family:var(--font-tech); font-size:0.85rem;
+      color:var(--ink-muted); min-height:1.2em; margin-top:0.5rem; text-align:center;
+    }
+    .admin-status.ok { color:#16a34a; }
+    .admin-status.err { color:#ef4444; }
+
+    .admin-date-label {
+      font-family:var(--font-tech); font-size:0.82rem; color:var(--ink-muted);
+      margin-bottom:1rem; display:flex; align-items:center; gap:0.4rem;
+    }
+    .admin-date-label strong { color:var(--orange); }
+
+    .blocked-list { display:flex; flex-direction:column; gap:0.5rem; max-height:320px; overflow-y:auto; }
+    .blocked-item {
+      display:flex; align-items:center; justify-content:space-between;
+      padding:0.6rem 0.9rem; background:rgba(239,68,68,0.07);
+      border:1px solid rgba(239,68,68,0.2); border-radius:8px;
+      font-family:var(--font-tech); font-size:0.88rem;
+    }
+    .blocked-item span { color:var(--ink); }
+    .blocked-item button {
+      background:none; border:none; color:#ef4444; cursor:pointer;
+      font-size:1.1rem; line-height:1; padding:0 4px; transition:transform 0.15s;
+    }
+    .blocked-item button:hover { transform:scale(1.2); }
+    .blocked-empty { color:var(--ink-muted); font-family:var(--font-tech); font-size:0.88rem; text-align:center; padding:1rem; }
+
+    @media (max-width: 700px) { .admin-grid { grid-template-columns:1fr; } }
+  </style>
+</head>
+<body>
+
+<header class="admin-header">
+  <div class="admin-logo">BOOM TANK // Admin</div>
+  <button class="admin-logout" id="logoutBtn" style="display:none;">יציאה</button>
+</header>
+
+<!-- LOGIN -->
+<div id="loginScreen">
+  <div class="login-card">
+    <h2>כניסת מנהל</h2>
+    <p>רק לך — לא מקושר מהאתר הציבורי</p>
+    <label>מייל</label>
+    <input type="email" id="loginEmail" placeholder="your@email.com" autocomplete="email">
+    <label>סיסמה</label>
+    <input type="password" id="loginPass" placeholder="••••••••" autocomplete="current-password">
+    <button class="btn-primary" id="loginBtn">כניסה</button>
+    <p class="login-error" id="loginError"></p>
+  </div>
+</div>
+
+<!-- ADMIN PANEL -->
+<div id="adminPanel">
+  <h2 style="font-family:var(--font-tech);font-size:1.3rem;color:var(--ink);margin-bottom:1.5rem;">ניהול זמינות</h2>
+
+  <div class="admin-grid">
+    <!-- Calendar -->
+    <div class="admin-card">
+      <h3>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        בחר תאריך לניהול
+      </h3>
+      <div id="adminCalContainer"><div class="cal-loading">טוען...</div></div>
+    </div>
+
+    <!-- Actions -->
+    <div class="admin-card" id="adminRight">
+      <div id="adminNoDate" style="text-align:center;padding:2rem;color:var(--ink-muted);font-family:var(--font-tech);font-size:0.95rem;">
+        בחר תאריך בלוח השנה
+      </div>
+      <div id="adminDatePanel" style="display:none;">
+        <div class="admin-date-label">תאריך נבחר: <strong id="adminDateLabel"></strong></div>
+
+        <h3 style="margin-bottom:0.85rem;">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          שעות — לחץ לסימון תפוס/פנוי
+        </h3>
+        <div class="admin-hour-grid" id="adminHourGrid"></div>
+
+        <div class="admin-action-row">
+          <button class="btn-danger" id="blockDayBtn">🔴 סמן יום שלם כתפוס</button>
+          <button class="btn-secondary" id="unblockDayBtn">✅ שחרר את כל היום</button>
+        </div>
+        <p class="admin-status" id="adminStatus"></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Blocked list -->
+  <div class="admin-card" style="margin-top:2rem;">
+    <h3>
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>
+      כל החסימות הפעילות
+    </h3>
+    <div class="blocked-list" id="blockedList"><div class="blocked-empty">טוען...</div></div>
+  </div>
+</div>
+
+<script type="module">
+  import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+  import { fetchBlockedSlots, buildCalendar, formatDateHebrew, isDayFullyBlocked, getBlockedHoursForDay } from './booking.js';
+
+  const SUPABASE_URL     = 'https://jzbxbrztsrbyrasrjjlr.supabase.co';
+  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp6Ynhicnp0c3JieXJhc3JqamxyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIwNzI5NjUsImV4cCI6MjA5NzY0ODk2NX0.f_-xwLxf2eQf5JcLPlNPzqOG4_sEF93fD3sbE-cOVYo';
+
+  const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  /* ── Auth ── */
+  const loginScreen = document.getElementById('loginScreen');
+  const adminPanel  = document.getElementById('adminPanel');
+  const logoutBtn   = document.getElementById('logoutBtn');
+  const loginBtn    = document.getElementById('loginBtn');
+  const loginError  = document.getElementById('loginError');
+
+  loginBtn.addEventListener('click', async () => {
+    loginBtn.disabled = true;
+    loginError.textContent = '';
+    const email = document.getElementById('loginEmail').value.trim();
+    const pass  = document.getElementById('loginPass').value;
+    const { error } = await supabase.auth.signInWithPassword({ email, password: pass });
+    if (error) {
+      loginError.textContent = 'פרטים שגויים — נסה שוב';
+      loginBtn.disabled = false;
+    }
+  });
+
+  logoutBtn.addEventListener('click', async () => {
+    await supabase.auth.signOut();
+  });
+
+  supabase.auth.onAuthStateChange((_event, session) => {
+    if (session) {
+      loginScreen.style.display = 'none';
+      adminPanel.style.display  = 'block';
+      logoutBtn.style.display   = 'block';
+      initAdmin();
+    } else {
+      loginScreen.style.display = 'flex';
+      adminPanel.style.display  = 'none';
+      logoutBtn.style.display   = 'none';
+    }
+  });
+
+  /* ── Admin state ── */
+  let calYear, calMonth, blockedSlots = [], selectedDate = null;
+
+  const adminCalContainer = document.getElementById('adminCalContainer');
+  const adminNoDate       = document.getElementById('adminNoDate');
+  const adminDatePanel    = document.getElementById('adminDatePanel');
+  const adminDateLabel    = document.getElementById('adminDateLabel');
+  const adminHourGrid     = document.getElementById('adminHourGrid');
+  const adminStatus       = document.getElementById('adminStatus');
+  const blockedListEl     = document.getElementById('blockedList');
+
+  function setStatus(msg, type = '') {
+    adminStatus.textContent = msg;
+    adminStatus.className   = 'admin-status ' + type;
+    if (msg) setTimeout(() => { adminStatus.textContent = ''; }, 3000);
+  }
+
+  async function loadAdminMonth(year, month) {
+    calYear = year; calMonth = month;
+    adminCalContainer.innerHTML = '<div class="cal-loading">טוען...</div>';
+    blockedSlots = await fetchBlockedSlots(year, month);
+    renderAdminCal();
+    renderBlockedList();
+  }
+
+  function renderAdminCal() {
+    const today = new Date(); today.setHours(0,0,0,0);
+    const monthNames = ['ינואר','פברואר','מרץ','אפריל','מאי','יוני','יולי','אוגוסט','ספטמבר','אוקטובר','נובמבר','דצמבר'];
+    const dayNames   = ['א׳','ב׳','ג׳','ד׳','ה׳','ו׳','ש׳'];
+    const firstDay   = new Date(calYear, calMonth - 1, 1).getDay();
+    const daysInMonth = new Date(calYear, calMonth, 0).getDate();
+
+    let html = `
+      <div class="cal-header">
+        <button class="cal-nav" id="adminCalPrev">&#8250;</button>
+        <span class="cal-month-label">${monthNames[calMonth-1]} ${calYear}</span>
+        <button class="cal-nav" id="adminCalNext">&#8249;</button>
+      </div>
+      <div class="cal-grid">
+        ${dayNames.map(d => `<div class="cal-dow">${d}</div>`).join('')}
+    `;
+    for (let i = 0; i < firstDay; i++) html += `<div class="cal-cell"></div>`;
+    for (let day = 1; day <= daysInMonth; day++) {
+      const ds    = `${calYear}-${String(calMonth).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+      const past  = new Date(calYear, calMonth-1, day) < today;
+      const full  = isDayFullyBlocked(blockedSlots, ds);
+      const isSel = ds === selectedDate;
+      let cls = 'cal-cell';
+      if (past)   cls += ' cal-disabled';
+      else if (isSel) cls += ' cal-selected-admin';
+      else if (full)  cls += ' cal-blocked-admin';
+      else            cls += ' cal-available';
+      html += `<div class="${cls}" data-date="${ds}">${day}</div>`;
+    }
+    html += `</div>`;
+    adminCalContainer.innerHTML = html;
+
+    adminCalContainer.querySelectorAll('[data-date]').forEach(cell => {
+      if (cell.classList.contains('cal-disabled')) return;
+      cell.addEventListener('click', () => {
+        selectedDate = cell.dataset.date;
+        renderAdminCal();
+        showAdminDatePanel(selectedDate);
+      });
+    });
+    document.getElementById('adminCalPrev').addEventListener('click', () => {
+      let m = calMonth-1, y = calYear; if (m<1){m=12;y--;} loadAdminMonth(y,m);
+    });
+    document.getElementById('adminCalNext').addEventListener('click', () => {
+      let m = calMonth+1, y = calYear; if (m>12){m=1;y++;} loadAdminMonth(y,m);
+    });
+  }
+
+  function showAdminDatePanel(dateStr) {
+    adminNoDate.style.display    = 'none';
+    adminDatePanel.style.display = 'block';
+    adminDateLabel.textContent   = formatDateHebrew(dateStr);
+    renderAdminHours(dateStr);
+  }
+
+  function renderAdminHours(dateStr) {
+    const blockedHrs = getBlockedHoursForDay(blockedSlots, dateStr);
+    let html = '';
+    for (let h = 8; h < 20; h++) {
+      const isBlk = blockedHrs.has(h);
+      html += `<div class="admin-hour-cell${isBlk ? ' admin-hour-blocked' : ''}" data-h="${h}">${h}:00</div>`;
+    }
+    adminHourGrid.innerHTML = html;
+
+    adminHourGrid.querySelectorAll('.admin-hour-cell').forEach(cell => {
+      cell.addEventListener('click', async () => {
+        const h = parseInt(cell.dataset.h, 10);
+        if (cell.classList.contains('admin-hour-blocked')) {
+          await unblockHour(dateStr, h);
+        } else {
+          await blockHour(dateStr, h);
+        }
+      });
+    });
+  }
+
+  async function blockHour(dateStr, hour) {
+    const { error } = await supabase.from('blocked_slots').insert({ date: dateStr, start_hour: hour, end_hour: hour + 1 });
+    if (error) { setStatus('שגיאה: ' + error.message, 'err'); return; }
+    setStatus(`✅ ${hour}:00 נחסם`, 'ok');
+    await refreshData();
+  }
+
+  async function unblockHour(dateStr, hour) {
+    const { error } = await supabase.from('blocked_slots')
+      .delete()
+      .eq('date', dateStr)
+      .eq('start_hour', hour);
+    if (error) { setStatus('שגיאה: ' + error.message, 'err'); return; }
+    setStatus(`✅ ${hour}:00 שוחרר`, 'ok');
+    await refreshData();
+  }
+
+  document.getElementById('blockDayBtn').addEventListener('click', async () => {
+    if (!selectedDate) return;
+    await supabase.from('blocked_slots').delete().eq('date', selectedDate);
+    const { error } = await supabase.from('blocked_slots').insert({ date: selectedDate, start_hour: null, end_hour: null });
+    if (error) { setStatus('שגיאה: ' + error.message, 'err'); return; }
+    setStatus('🔴 היום כולו נחסם', 'ok');
+    await refreshData();
+  });
+
+  document.getElementById('unblockDayBtn').addEventListener('click', async () => {
+    if (!selectedDate) return;
+    const { error } = await supabase.from('blocked_slots').delete().eq('date', selectedDate);
+    if (error) { setStatus('שגיאה: ' + error.message, 'err'); return; }
+    setStatus('✅ כל היום שוחרר', 'ok');
+    await refreshData();
+  });
+
+  async function refreshData() {
+    blockedSlots = await fetchBlockedSlots(calYear, calMonth);
+    renderAdminCal();
+    if (selectedDate) renderAdminHours(selectedDate);
+    renderBlockedList();
+  }
+
+  function renderBlockedList() {
+    if (!blockedSlots.length) {
+      blockedListEl.innerHTML = '<div class="blocked-empty">אין חסימות פעילות החודש</div>';
+      return;
+    }
+    const sorted = [...blockedSlots].sort((a,b) => a.date.localeCompare(b.date) || (a.start_hour||0) - (b.start_hour||0));
+    blockedListEl.innerHTML = sorted.map(s => {
+      const label = s.start_hour == null
+        ? `${formatDateHebrew(s.date)} — כל היום`
+        : `${formatDateHebrew(s.date)} — ${s.start_hour}:00–${s.end_hour}:00`;
+      return `
+        <div class="blocked-item">
+          <span>${label}</span>
+          <button data-id="${s.id}" title="מחק חסימה">✕</button>
+        </div>`;
+    }).join('');
+
+    blockedListEl.querySelectorAll('button[data-id]').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        await supabase.from('blocked_slots').delete().eq('id', btn.dataset.id);
+        await refreshData();
+      });
+    });
+  }
+
+  function initAdmin() {
+    const now = new Date();
+    loadAdminMonth(now.getFullYear(), now.getMonth() + 1);
+  }
+</script>
+</body>
+</html>
