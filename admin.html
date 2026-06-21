@@ -123,40 +123,168 @@
       min-height: 1.2em;
     }
 
-    /* ── Stats cards ── */
-    .stats-row {
+    /* ── Stats + Charts row ── */
+    .dashboard-row {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 1rem;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
       margin-bottom: 2rem;
+    }
+
+    /* left: 3 stat cards stacked */
+    .stats-col {
+      display: flex;
+      flex-direction: column;
+      gap: 0.85rem;
     }
     .stat-card {
       background: var(--bg-card);
       border: 1px solid var(--border);
       border-radius: 12px;
-      padding: 1.25rem 1.5rem;
+      padding: 1rem 1.25rem;
       box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+      display: flex;
+      align-items: center;
+      gap: 1rem;
     }
+    .stat-icon {
+      width: 44px; height: 44px;
+      border-radius: 10px;
+      background: rgba(249,115,22,0.1);
+      display: grid; place-items: center;
+      flex-shrink: 0;
+      color: var(--orange);
+      font-size: 1.3rem;
+    }
+    .stat-text { flex: 1; }
     .stat-label {
       font-family: var(--font-tech);
-      font-size: 0.75rem;
+      font-size: 0.72rem;
       font-weight: 600;
       color: var(--ink-muted);
       letter-spacing: 0.5px;
-      margin-bottom: 0.5rem;
       text-transform: uppercase;
+      margin-bottom: 0.2rem;
     }
     .stat-value {
       font-family: var(--font-tech);
-      font-size: 2rem;
+      font-size: 1.7rem;
       font-weight: 700;
       color: var(--orange);
       line-height: 1;
     }
     .stat-sub {
-      font-size: 0.8rem;
+      font-size: 0.75rem;
       color: var(--ink-muted);
-      margin-top: 0.25rem;
+      margin-top: 0.15rem;
+    }
+
+    /* right: donut chart card */
+    .chart-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 1.5rem;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+      display: flex;
+      flex-direction: column;
+    }
+    .chart-card h4 {
+      font-family: var(--font-tech);
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--ink-muted);
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      margin-bottom: 1rem;
+    }
+    .chart-wrap {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 1.5rem;
+    }
+    .donut-svg { width: 110px; height: 110px; flex-shrink: 0; }
+    .donut-center {
+      font-family: var(--font-tech);
+      font-size: 1.1rem;
+      font-weight: 700;
+      fill: var(--ink);
+    }
+    .donut-sub {
+      font-family: var(--font-tech);
+      font-size: 0.6rem;
+      fill: var(--ink-muted);
+    }
+    .chart-legend {
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+    }
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-family: var(--font-tech);
+      font-size: 0.8rem;
+      color: var(--ink-soft);
+    }
+    .legend-dot {
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    /* bar chart row */
+    .bar-chart-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 1.5rem;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+      margin-bottom: 2rem;
+    }
+    .bar-chart-card h4 {
+      font-family: var(--font-tech);
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--ink-muted);
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      margin-bottom: 1rem;
+    }
+    .bar-list { display: flex; flex-direction: column; gap: 0.6rem; }
+    .bar-row { display: flex; align-items: center; gap: 0.75rem; }
+    .bar-label {
+      font-family: var(--font-tech);
+      font-size: 0.78rem;
+      color: var(--ink-soft);
+      width: 56px;
+      flex-shrink: 0;
+      text-align: left;
+    }
+    .bar-track {
+      flex: 1;
+      height: 10px;
+      background: var(--bg);
+      border-radius: 99px;
+      overflow: hidden;
+    }
+    .bar-fill {
+      height: 100%;
+      border-radius: 99px;
+      background: var(--orange);
+      transition: width 0.6s ease;
+    }
+    .bar-fill.blocked-full { background: #ef4444; }
+    .bar-val {
+      font-family: var(--font-tech);
+      font-size: 0.75rem;
+      color: var(--ink-muted);
+      width: 28px;
+      text-align: right;
+      flex-shrink: 0;
     }
 
     /* ── Admin panel ── */
@@ -348,10 +476,7 @@
 
     @media (max-width: 700px) {
       .admin-grid { grid-template-columns: 1fr; }
-      .stats-row { grid-template-columns: 1fr 1fr; }
-    }
-    @media (max-width: 420px) {
-      .stats-row { grid-template-columns: 1fr; }
+      .dashboard-row { grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -385,23 +510,64 @@
     ⚠️ שגיאה בטעינת נתונים מהשרת — בדוק חיבור לאינטרנט ורענן
   </div>
 
-  <!-- Stats -->
-  <div class="stats-row">
-    <div class="stat-card">
-      <div class="stat-label">ימים חסומים</div>
-      <div class="stat-value" id="statBlockedDays">—</div>
-      <div class="stat-sub">החודש הנוכחי</div>
+  <!-- Dashboard: stats + donut -->
+  <div class="dashboard-row">
+    <!-- Stats column -->
+    <div class="stats-col">
+      <div class="stat-card">
+        <div class="stat-icon">📅</div>
+        <div class="stat-text">
+          <div class="stat-label">ימים חסומים במלואם</div>
+          <div class="stat-value" id="statBlockedDays">—</div>
+          <div class="stat-sub">ימים שסומנו תפוסים לגמרי</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">⏰</div>
+        <div class="stat-text">
+          <div class="stat-label">שעות חסומות מימים שלמים</div>
+          <div class="stat-value" id="statFullDayHours">—</div>
+          <div class="stat-sub">12 שעות × מספר ימים חסומים</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">🕐</div>
+        <div class="stat-text">
+          <div class="stat-label">שעות בודדות חסומות</div>
+          <div class="stat-value" id="statBlockedHours">—</div>
+          <div class="stat-sub">חסימות שעתיות ספציפיות</div>
+        </div>
+      </div>
     </div>
-    <div class="stat-card">
-      <div class="stat-label">שעות חסומות</div>
-      <div class="stat-value" id="statBlockedHours">—</div>
-      <div class="stat-sub">שעות בודדות</div>
+
+    <!-- Donut chart -->
+    <div class="chart-card">
+      <h4>חלוקת חסימות החודש</h4>
+      <div class="chart-wrap">
+        <svg class="donut-svg" viewBox="0 0 110 110" id="donutSvg">
+          <circle cx="55" cy="55" r="40" fill="none" stroke="#E7E2DA" stroke-width="14"/>
+          <circle cx="55" cy="55" r="40" fill="none" stroke="#ef4444" stroke-width="14"
+            stroke-dasharray="0 251.2" stroke-dashoffset="62.8"
+            stroke-linecap="round" id="donutFull" style="transition:stroke-dasharray 0.7s ease"/>
+          <circle cx="55" cy="55" r="40" fill="none" stroke="#F97316" stroke-width="14"
+            stroke-dasharray="0 251.2" stroke-dashoffset="62.8"
+            stroke-linecap="round" id="donutHour" style="transition:stroke-dasharray 0.7s ease"/>
+          <text x="55" y="51" text-anchor="middle" class="donut-center" id="donutCenterVal">—</text>
+          <text x="55" y="63" text-anchor="middle" class="donut-sub">שעות סה"כ</text>
+        </svg>
+        <div class="chart-legend">
+          <div class="legend-item"><div class="legend-dot" style="background:#ef4444"></div>ימים שלמים חסומים</div>
+          <div class="legend-item"><div class="legend-dot" style="background:#F97316"></div>שעות בודדות חסומות</div>
+          <div class="legend-item"><div class="legend-dot" style="background:#E7E2DA"></div>שעות פנויות</div>
+        </div>
+      </div>
     </div>
-    <div class="stat-card">
-      <div class="stat-label">סך חסימות</div>
-      <div class="stat-value" id="statTotalSlots">—</div>
-      <div class="stat-sub">רשומות ב-DB</div>
-    </div>
+  </div>
+
+  <!-- Bar chart: שעות חסומות לפי יום -->
+  <div class="bar-chart-card" id="barChartCard" style="display:none;">
+    <h4>שעות חסומות לפי יום (החודש)</h4>
+    <div class="bar-list" id="barList"></div>
   </div>
 
   <div class="admin-grid">
@@ -584,13 +750,70 @@
   }
 
   function updateStats() {
-    const fullDays  = new Set(blockedSlots.filter(s => s.start_hour == null).map(s => s.date));
-    const hourSlots = blockedSlots.filter(s => s.start_hour != null);
-    const totalHours = hourSlots.reduce((acc, s) => acc + (s.end_hour - s.start_hour), 0);
+    const HOURS_IN_DAY = 12; // 08:00–20:00
+    const TOTAL_MONTH_HOURS = new Date(calYear, calMonth, 0).getDate() * HOURS_IN_DAY;
 
-    document.getElementById('statBlockedDays').textContent  = fullDays.size;
-    document.getElementById('statBlockedHours').textContent = totalHours;
-    document.getElementById('statTotalSlots').textContent   = blockedSlots.length;
+    const fullDays   = new Set(blockedSlots.filter(s => s.start_hour == null).map(s => s.date));
+    const hourSlots  = blockedSlots.filter(s => s.start_hour != null);
+    const blockedFromFullDays = fullDays.size * HOURS_IN_DAY;
+    const blockedIndividualHours = hourSlots.reduce((acc, s) => acc + (s.end_hour - s.start_hour), 0);
+    const totalBlocked = blockedFromFullDays + blockedIndividualHours;
+
+    document.getElementById('statBlockedDays').textContent    = fullDays.size;
+    document.getElementById('statFullDayHours').textContent   = blockedFromFullDays;
+    document.getElementById('statBlockedHours').textContent   = blockedIndividualHours;
+
+    /* ── Donut chart ── */
+    const circ = 2 * Math.PI * 40; // ~251.2
+    const fullPct  = blockedFromFullDays     / TOTAL_MONTH_HOURS;
+    const hourPct  = blockedIndividualHours  / TOTAL_MONTH_HOURS;
+    const fullArc  = circ * fullPct;
+    const hourArc  = circ * hourPct;
+    // offset: start at top (−quarter circle = −62.8)
+    const fullOffset = 62.8;
+    const hourOffset = 62.8 - fullArc;
+
+    const donutFull = document.getElementById('donutFull');
+    const donutHour = document.getElementById('donutHour');
+    donutFull.setAttribute('stroke-dasharray', `${fullArc} ${circ - fullArc}`);
+    donutFull.setAttribute('stroke-dashoffset', fullOffset);
+    donutHour.setAttribute('stroke-dasharray', `${hourArc} ${circ - hourArc}`);
+    donutHour.setAttribute('stroke-dashoffset', hourOffset);
+    document.getElementById('donutCenterVal').textContent = totalBlocked;
+
+    /* ── Bar chart (per day) ── */
+    const barCard = document.getElementById('barChartCard');
+    const barList = document.getElementById('barList');
+
+    // build per-day hours map
+    const dayMap = {};
+    blockedSlots.forEach(s => {
+      if (!dayMap[s.date]) dayMap[s.date] = { full: false, hours: 0 };
+      if (s.start_hour == null) {
+        dayMap[s.date].full = true;
+        dayMap[s.date].hours = HOURS_IN_DAY;
+      } else {
+        dayMap[s.date].hours += (s.end_hour - s.start_hour);
+      }
+    });
+
+    const days = Object.keys(dayMap).sort();
+    if (!days.length) { barCard.style.display = 'none'; return; }
+
+    barCard.style.display = 'block';
+    barList.innerHTML = days.map(d => {
+      const { hours, full } = dayMap[d];
+      const pct = Math.round((hours / HOURS_IN_DAY) * 100);
+      const [y, m, day] = d.split('-');
+      return `
+        <div class="bar-row">
+          <div class="bar-label">${day}/${m}</div>
+          <div class="bar-track">
+            <div class="bar-fill${full ? ' blocked-full' : ''}" style="width:${pct}%"></div>
+          </div>
+          <div class="bar-val">${hours}ש'</div>
+        </div>`;
+    }).join('');
   }
 
   async function loadAdminMonth(year, month) {
