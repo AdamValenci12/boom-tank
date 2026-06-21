@@ -1312,6 +1312,13 @@
       color: #ef4444;
       text-decoration: line-through;
     }
+    .cal-blocked-clickable {
+      cursor: pointer;
+    }
+    .cal-blocked-clickable:hover {
+      background: rgba(239,68,68,0.18);
+      transform: scale(1.08);
+    }
     .cal-selected {
       background: var(--orange) !important;
       color: #fff !important;
@@ -1417,6 +1424,47 @@
       text-align: center;
     }
     .booking-right-empty svg { width: 48px; height: 48px; color: var(--border); }
+
+    .booking-full-day {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 260px;
+      gap: 1.25rem;
+      text-align: center;
+    }
+    .booking-full-day-icon {
+      width: 64px; height: 64px;
+      display: grid; place-items: center;
+      background: rgba(239,68,68,0.08);
+      border: 1.5px solid rgba(239,68,68,0.2);
+      border-radius: 50%;
+      color: #ef4444;
+    }
+    .booking-full-day-icon svg { width: 30px; height: 30px; }
+    .booking-full-day h4 {
+      font-family: var(--font-tech);
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--ink);
+    }
+    .booking-full-day p {
+      font-size: 0.92rem;
+      color: var(--ink-muted);
+      line-height: 1.6;
+      max-width: 240px;
+    }
+    .booking-full-day-date {
+      font-family: var(--font-tech);
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: #ef4444;
+      background: rgba(239,68,68,0.08);
+      border: 1px solid rgba(239,68,68,0.2);
+      border-radius: 8px;
+      padding: 0.35rem 0.9rem;
+    }
 
     .booking-date-label {
       font-family: var(--font-tech);
@@ -1926,6 +1974,19 @@
             <p>בחר תאריך בלוח השנה<br>כדי לראות את השעות הפנויות</p>
           </div>
 
+          <div class="booking-full-day" id="bookingFullDay" style="display:none;">
+            <div class="booking-full-day-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>
+            </div>
+            <div class="booking-full-day-date" id="fullDayDateLabel"></div>
+            <h4>היום הזה תפוס במלואו</h4>
+            <p>כל השעות ביום זה כבר הוזמנו.<br>בחר תאריך אחר או צור קשר ישירות.</p>
+            <a href="https://wa.me/972558836101" target="_blank" rel="noopener" class="booking-wa-btn" style="max-width:260px; margin-top:0.25rem;">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M.057 24l1.687-6.163a11.867 11.867 0 0 1-1.587-5.946C.16 5.335 5.495 0 12.05 0a11.817 11.817 0 0 1 8.413 3.488 11.824 11.824 0 0 1 3.48 8.414c-.003 6.557-5.338 11.892-11.893 11.892a11.9 11.9 0 0 1-5.688-1.448L.057 24zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884a9.86 9.86 0 0 0 1.512 5.26l-.999 3.648 3.745-.711zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
+              צור קשר בוואטסאפ
+            </a>
+          </div>
+
           <div id="bookingHours" style="display:none;">
             <h3>
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
@@ -1984,12 +2045,20 @@
     let calYear, calMonth, blockedSlots = [], selectedDate = null;
     let selectedStart = null, selectedEnd = null;
 
-    const calContainer  = document.getElementById('calContainer');
-    const bookingEmpty  = document.getElementById('bookingEmpty');
-    const bookingHours  = document.getElementById('bookingHours');
-    const hourContainer = document.getElementById('hourContainer');
-    const waBtn         = document.getElementById('waBookingBtn');
-    const dateLabel     = document.getElementById('selectedDateLabel');
+    const calContainer    = document.getElementById('calContainer');
+    const bookingEmpty    = document.getElementById('bookingEmpty');
+    const bookingHours    = document.getElementById('bookingHours');
+    const bookingFullDay  = document.getElementById('bookingFullDay');
+    const fullDayDateLabel = document.getElementById('fullDayDateLabel');
+    const hourContainer   = document.getElementById('hourContainer');
+    const waBtn           = document.getElementById('waBookingBtn');
+    const dateLabel       = document.getElementById('selectedDateLabel');
+
+    function showPanel(which) {
+      bookingEmpty.style.display   = which === 'empty'   ? 'flex' : 'none';
+      bookingHours.style.display   = which === 'hours'   ? 'block' : 'none';
+      bookingFullDay.style.display = which === 'fullday' ? 'flex' : 'none';
+    }
 
     function updateWaBtn() {
       if (selectedDate && selectedStart !== null && selectedEnd !== null) {
@@ -2004,8 +2073,7 @@
     }
 
     function showHourPanel(dateStr) {
-      bookingEmpty.style.display = 'none';
-      bookingHours.style.display = 'block';
+      showPanel('hours');
       dateLabel.textContent = formatDateHebrew(dateStr);
       selectedStart = null; selectedEnd = null;
       updateWaBtn();
@@ -2018,6 +2086,11 @@
       });
     }
 
+    function showFullDayPanel(dateStr) {
+      showPanel('fullday');
+      fullDayDateLabel.textContent = formatDateHebrew(dateStr);
+    }
+
     async function loadMonth(year, month) {
       calYear = year; calMonth = month;
       calContainer.innerHTML = '<div class="cal-loading">טוען זמינות...</div>';
@@ -2026,11 +2099,19 @@
     }
 
     function renderCal() {
-      buildCalendar(calContainer, calYear, calMonth, blockedSlots, selectedDate, (dateStr) => {
-        selectedDate = dateStr;
-        renderCal();
-        showHourPanel(dateStr);
-      });
+      buildCalendar(
+        calContainer, calYear, calMonth, blockedSlots, selectedDate,
+        (dateStr) => {
+          selectedDate = dateStr;
+          renderCal();
+          showHourPanel(dateStr);
+        },
+        (dateStr) => {
+          selectedDate = dateStr;
+          renderCal();
+          showFullDayPanel(dateStr);
+        }
+      );
 
       document.getElementById('calPrev').addEventListener('click', () => {
         let m = calMonth - 1, y = calYear;

@@ -63,7 +63,7 @@ export function getBlockedHoursForDay(slots, dateStr) {
  * `blockedSlots` is the array from fetchBlockedSlots.
  * `selectedDate` is a string 'YYYY-MM-DD' or null.
  */
-export function buildCalendar(containerEl, year, month, blockedSlots, selectedDate, onDayClick) {
+export function buildCalendar(containerEl, year, month, blockedSlots, selectedDate, onDayClick, onFullDayClick) {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
@@ -97,15 +97,18 @@ export function buildCalendar(containerEl, year, month, blockedSlots, selectedDa
     const isPast = cellDate < today;
     const isFullyBlocked = isDayFullyBlocked(blockedSlots, dateStr);
     const isSelected = dateStr === selectedDate;
-    const isDisabled = isPast || isFullyBlocked;
 
     let cls = 'cal-cell';
-    if (isDisabled) cls += ' cal-disabled';
-    if (isFullyBlocked && !isPast) cls += ' cal-blocked';
+    if (isPast) {
+      cls += ' cal-disabled';
+    } else if (isFullyBlocked) {
+      cls += ' cal-blocked cal-blocked-clickable';
+    } else {
+      cls += ' cal-available';
+    }
     if (isSelected) cls += ' cal-selected';
-    if (!isDisabled) cls += ' cal-available';
 
-    html += `<div class="${cls}" data-date="${dateStr}">${day}</div>`;
+    html += `<div class="${cls}" data-date="${dateStr}" data-full="${isFullyBlocked ? '1' : ''}">${day}</div>`;
   }
 
   html += `</div>`;
@@ -115,6 +118,11 @@ export function buildCalendar(containerEl, year, month, blockedSlots, selectedDa
   containerEl.querySelectorAll('.cal-available').forEach(cell => {
     cell.addEventListener('click', () => onDayClick(cell.dataset.date));
   });
+  if (onFullDayClick) {
+    containerEl.querySelectorAll('.cal-blocked-clickable').forEach(cell => {
+      cell.addEventListener('click', () => onFullDayClick(cell.dataset.date));
+    });
+  }
 }
 
 /*
