@@ -1,14 +1,24 @@
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-
-const SUPABASE_URL = 'https://jzbxbrztsrbyrasrjjlr.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp6Ynhicnp0c3JieXJhc3JqamxyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIwNzI5NjUsImV4cCI6MjA5NzY0ODk2NX0.f_-xwLxf2eQf5JcLPlNPzqOG4_sEF93fD3sbE-cOVYo';
+import { SUPABASE_URL, SUPABASE_ANON_KEY, WA_NUMBER } from './config.js';
 
 export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-const WA_NUMBER = '972558836101';
+/* ─── Cache: month key → array of slots ─── */
+const _cache = new Map();
+
+function _monthKey(year, month) {
+  return `${year}-${String(month).padStart(2, '0')}`;
+}
+
+export function invalidateCache(year, month) {
+  _cache.delete(_monthKey(year, month));
+}
 
 /* ─── fetch all blocked slots for a given month ─── */
 export async function fetchBlockedSlots(year, month) {
+  const key = _monthKey(year, month);
+  if (_cache.has(key)) return _cache.get(key);
+
   const from = `${year}-${String(month).padStart(2, '0')}-01`;
   const lastDay = new Date(year, month, 0).getDate();
   const to = `${year}-${String(month).padStart(2, '0')}-${lastDay}`;
@@ -19,7 +29,12 @@ export async function fetchBlockedSlots(year, month) {
     .gte('date', from)
     .lte('date', to);
 
-  if (error) { console.error('Supabase fetch error:', error); return []; }
+  if (error) {
+    console.error('Supabase fetch error:', error);
+    return { error: error.message, slots: [] };
+  }
+
+  _cache.set(key, data);
   return data;
 }
 
@@ -37,15 +52,14 @@ export function buildWhatsAppLink(dateStr, startHour, endHour) {
 
 /*
  * isDayFullyBlocked — returns true if the day has a slot with NULL hours
- * (meaning the whole day is marked taken)
  */
 export function isDayFullyBlocked(slots, dateStr) {
   return slots.some(s => s.date === dateStr && s.start_hour == null);
 }
 
 /*
- * getBlockedHoursForDay — returns Set of hours that are inside ANY blocked
- * range for that day.  e.g. start_hour=10, end_hour=13 blocks 10,11,12.
+ * getBlockedHoursForDay — returns Set of hours that are blocked for that day.
+ * e.g. start_hour=10, end_hour=13 blocks 10, 11, 12.
  */
 export function getBlockedHoursForDay(slots, dateStr) {
   const blocked = new Set();
@@ -73,7 +87,7 @@ export function buildCalendar(containerEl, year, month, blockedSlots, selectedDa
   ];
   const dayNames = ['א׳','ב׳','ג׳','ד׳','ה׳','ו׳','ש׳'];
 
-  const firstDay = new Date(year, month - 1, 1).getDay(); // 0=Sun
+  const firstDay = new Date(year, month - 1, 1).getDay();
   const daysInMonth = new Date(year, month, 0).getDate();
 
   let html = `
@@ -86,7 +100,6 @@ export function buildCalendar(containerEl, year, month, blockedSlots, selectedDa
       ${dayNames.map(d => `<div class="cal-dow">${d}</div>`).join('')}
   `;
 
-  // empty cells before the 1st
   for (let i = 0; i < firstDay; i++) {
     html += `<div class="cal-cell cal-empty"></div>`;
   }
@@ -114,7 +127,6 @@ export function buildCalendar(containerEl, year, month, blockedSlots, selectedDa
   html += `</div>`;
   containerEl.innerHTML = html;
 
-  // click handlers
   containerEl.querySelectorAll('.cal-available').forEach(cell => {
     cell.addEventListener('click', () => onDayClick(cell.dataset.date));
   });

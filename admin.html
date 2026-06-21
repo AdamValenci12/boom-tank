@@ -97,6 +97,7 @@
       outline: none;
     }
     input:focus { border-color: var(--orange); }
+    input.input-error { border-color: #ef4444; }
 
     .btn-primary {
       width: 100%;
@@ -120,6 +121,42 @@
       margin-top: 0.75rem;
       text-align: center;
       min-height: 1.2em;
+    }
+
+    /* ── Stats cards ── */
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+    .stat-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.25rem 1.5rem;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+    }
+    .stat-label {
+      font-family: var(--font-tech);
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--ink-muted);
+      letter-spacing: 0.5px;
+      margin-bottom: 0.5rem;
+      text-transform: uppercase;
+    }
+    .stat-value {
+      font-family: var(--font-tech);
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--orange);
+      line-height: 1;
+    }
+    .stat-sub {
+      font-size: 0.8rem;
+      color: var(--ink-muted);
+      margin-top: 0.25rem;
     }
 
     /* ── Admin panel ── */
@@ -149,7 +186,22 @@
     }
     .admin-card h3 svg { width: 18px; height: 18px; color: var(--orange); }
 
-    /* Calendar (reuse classes from index, redefined here) */
+    /* ── Skeleton loader ── */
+    @keyframes shimmer {
+      0%   { background-position: -400px 0; }
+      100% { background-position: 400px 0; }
+    }
+    .skeleton {
+      background: linear-gradient(90deg, #ece8e0 25%, #f5f2ee 50%, #ece8e0 75%);
+      background-size: 800px 100%;
+      animation: shimmer 1.4s infinite linear;
+      border-radius: 8px;
+    }
+    .skeleton-cal { height: 240px; width: 100%; }
+    .skeleton-row { height: 20px; margin-bottom: 8px; }
+    .skeleton-row:last-child { width: 60%; }
+
+    /* Calendar */
     .cal-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:1rem; }
     .cal-month-label { font-family:var(--font-tech); font-weight:700; font-size:1rem; color:var(--ink); }
     .cal-nav {
@@ -167,7 +219,6 @@
     .cal-blocked-admin { background:rgba(239,68,68,0.1); color:#ef4444; cursor:pointer; border:1.5px solid rgba(239,68,68,0.3); }
     .cal-blocked-admin:hover { background:rgba(239,68,68,0.2); }
     .cal-selected-admin { background:var(--orange) !important; color:#fff !important; }
-    .cal-loading { text-align:center; padding:2rem; color:var(--ink-muted); font-family:var(--font-tech); font-size:0.9rem; }
 
     /* Hour grid (admin) */
     .admin-hour-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-bottom:1.25rem; }
@@ -196,7 +247,7 @@
       font-family:var(--font-tech); font-size:0.85rem;
       color:var(--ink-muted); min-height:1.2em; margin-top:0.5rem; text-align:center;
     }
-    .admin-status.ok { color:#16a34a; }
+    .admin-status.ok  { color:#16a34a; }
     .admin-status.err { color:#ef4444; }
 
     .admin-date-label {
@@ -220,7 +271,88 @@
     .blocked-item button:hover { transform:scale(1.2); }
     .blocked-empty { color:var(--ink-muted); font-family:var(--font-tech); font-size:0.88rem; text-align:center; padding:1rem; }
 
-    @media (max-width: 700px) { .admin-grid { grid-template-columns:1fr; } }
+    /* ── Confirm dialog ── */
+    .dialog-overlay {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.45);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 1000;
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.2s;
+    }
+    .dialog-overlay.visible { opacity: 1; pointer-events: all; }
+    .dialog-box {
+      background: var(--bg-card);
+      border-radius: 16px;
+      padding: 2rem;
+      max-width: 360px;
+      width: 90%;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+      transform: translateY(12px);
+      transition: transform 0.2s;
+    }
+    .dialog-overlay.visible .dialog-box { transform: translateY(0); }
+    .dialog-title {
+      font-family: var(--font-tech);
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--ink);
+      margin-bottom: 0.5rem;
+    }
+    .dialog-msg {
+      font-size: 0.9rem;
+      color: var(--ink-muted);
+      margin-bottom: 1.5rem;
+      line-height: 1.5;
+    }
+    .dialog-actions { display: flex; gap: 0.75rem; justify-content: flex-end; }
+    .dialog-cancel {
+      padding: 0.55rem 1.1rem;
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      background: none;
+      font-family: var(--font-tech);
+      font-size: 0.9rem;
+      color: var(--ink-muted);
+      cursor: pointer;
+      transition: border-color 0.2s;
+    }
+    .dialog-cancel:hover { border-color: var(--ink-muted); }
+    .dialog-confirm {
+      padding: 0.55rem 1.1rem;
+      border: none;
+      border-radius: 8px;
+      background: #ef4444;
+      font-family: var(--font-tech);
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: #fff;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .dialog-confirm:hover { background: #dc2626; }
+
+    /* ── Fetch error banner ── */
+    .fetch-error-banner {
+      display: none;
+      background: rgba(239,68,68,0.1);
+      border: 1px solid rgba(239,68,68,0.3);
+      border-radius: 10px;
+      padding: 0.75rem 1rem;
+      margin-bottom: 1.5rem;
+      font-family: var(--font-tech);
+      font-size: 0.88rem;
+      color: #ef4444;
+    }
+    .fetch-error-banner.visible { display: block; }
+
+    @media (max-width: 700px) {
+      .admin-grid { grid-template-columns: 1fr; }
+      .stats-row { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 420px) {
+      .stats-row { grid-template-columns: 1fr; }
+    }
   </style>
 </head>
 <body>
@@ -235,9 +367,9 @@
   <div class="login-card">
     <h2>כניסת מנהל</h2>
     <p>רק לך — לא מקושר מהאתר הציבורי</p>
-    <label>מייל</label>
+    <label for="loginEmail">מייל</label>
     <input type="email" id="loginEmail" placeholder="your@email.com" autocomplete="email">
-    <label>סיסמה</label>
+    <label for="loginPass">סיסמה</label>
     <input type="password" id="loginPass" placeholder="••••••••" autocomplete="current-password">
     <button class="btn-primary" id="loginBtn">כניסה</button>
     <p class="login-error" id="loginError"></p>
@@ -248,6 +380,30 @@
 <div id="adminPanel">
   <h2 style="font-family:var(--font-tech);font-size:1.3rem;color:var(--ink);margin-bottom:1.5rem;">ניהול זמינות</h2>
 
+  <!-- Fetch error banner -->
+  <div class="fetch-error-banner" id="fetchErrorBanner">
+    ⚠️ שגיאה בטעינת נתונים מהשרת — בדוק חיבור לאינטרנט ורענן
+  </div>
+
+  <!-- Stats -->
+  <div class="stats-row">
+    <div class="stat-card">
+      <div class="stat-label">ימים חסומים</div>
+      <div class="stat-value" id="statBlockedDays">—</div>
+      <div class="stat-sub">החודש הנוכחי</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">שעות חסומות</div>
+      <div class="stat-value" id="statBlockedHours">—</div>
+      <div class="stat-sub">שעות בודדות</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">סך חסימות</div>
+      <div class="stat-value" id="statTotalSlots">—</div>
+      <div class="stat-sub">רשומות ב-DB</div>
+    </div>
+  </div>
+
   <div class="admin-grid">
     <!-- Calendar -->
     <div class="admin-card">
@@ -255,7 +411,9 @@
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
         בחר תאריך לניהול
       </h3>
-      <div id="adminCalContainer"><div class="cal-loading">טוען...</div></div>
+      <div id="adminCalContainer">
+        <div class="skeleton skeleton-cal"></div>
+      </div>
     </div>
 
     <!-- Actions -->
@@ -287,18 +445,54 @@
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>
       כל החסימות הפעילות
     </h3>
-    <div class="blocked-list" id="blockedList"><div class="blocked-empty">טוען...</div></div>
+    <div class="blocked-list" id="blockedList">
+      <div class="skeleton skeleton-row"></div>
+      <div class="skeleton skeleton-row"></div>
+      <div class="skeleton skeleton-row"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Confirm dialog -->
+<div class="dialog-overlay" id="confirmOverlay">
+  <div class="dialog-box">
+    <div class="dialog-title" id="dialogTitle"></div>
+    <div class="dialog-msg" id="dialogMsg"></div>
+    <div class="dialog-actions">
+      <button class="dialog-cancel" id="dialogCancel">ביטול</button>
+      <button class="dialog-confirm" id="dialogConfirm">אישור</button>
+    </div>
   </div>
 </div>
 
 <script type="module">
   import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-  import { fetchBlockedSlots, buildCalendar, formatDateHebrew, isDayFullyBlocked, getBlockedHoursForDay } from './booking.js';
-
-  const SUPABASE_URL     = 'https://jzbxbrztsrbyrasrjjlr.supabase.co';
-  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp6Ynhicnp0c3JieXJhc3JqamxyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIwNzI5NjUsImV4cCI6MjA5NzY0ODk2NX0.f_-xwLxf2eQf5JcLPlNPzqOG4_sEF93fD3sbE-cOVYo';
+  import { SUPABASE_URL, SUPABASE_ANON_KEY } from './config.js';
+  import { fetchBlockedSlots, invalidateCache, buildCalendar, formatDateHebrew, isDayFullyBlocked, getBlockedHoursForDay } from './booking.js';
 
   const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  /* ── Confirm dialog ── */
+  function showConfirm(title, msg) {
+    return new Promise(resolve => {
+      document.getElementById('dialogTitle').textContent = title;
+      document.getElementById('dialogMsg').textContent   = msg;
+      const overlay = document.getElementById('confirmOverlay');
+      overlay.classList.add('visible');
+
+      function cleanup(result) {
+        overlay.classList.remove('visible');
+        document.getElementById('dialogConfirm').removeEventListener('click', onConfirm);
+        document.getElementById('dialogCancel').removeEventListener('click', onCancel);
+        resolve(result);
+      }
+      function onConfirm() { cleanup(true); }
+      function onCancel()  { cleanup(false); }
+
+      document.getElementById('dialogConfirm').addEventListener('click', onConfirm);
+      document.getElementById('dialogCancel').addEventListener('click', onCancel);
+    });
+  }
 
   /* ── Auth ── */
   const loginScreen = document.getElementById('loginScreen');
@@ -307,16 +501,51 @@
   const loginBtn    = document.getElementById('loginBtn');
   const loginError  = document.getElementById('loginError');
 
+  function validateEmail(email) {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  }
+
   loginBtn.addEventListener('click', async () => {
-    loginBtn.disabled = true;
+    const emailInput = document.getElementById('loginEmail');
+    const passInput  = document.getElementById('loginPass');
+    const email = emailInput.value.trim();
+    const pass  = passInput.value;
+
+    emailInput.classList.remove('input-error');
+    passInput.classList.remove('input-error');
     loginError.textContent = '';
-    const email = document.getElementById('loginEmail').value.trim();
-    const pass  = document.getElementById('loginPass').value;
+
+    if (!email) {
+      emailInput.classList.add('input-error');
+      loginError.textContent = 'נא למלא כתובת מייל';
+      emailInput.focus();
+      return;
+    }
+    if (!validateEmail(email)) {
+      emailInput.classList.add('input-error');
+      loginError.textContent = 'כתובת מייל לא תקינה';
+      emailInput.focus();
+      return;
+    }
+    if (!pass) {
+      passInput.classList.add('input-error');
+      loginError.textContent = 'נא למלא סיסמה';
+      passInput.focus();
+      return;
+    }
+
+    loginBtn.disabled = true;
+    loginBtn.textContent = 'מתחבר...';
     const { error } = await supabase.auth.signInWithPassword({ email, password: pass });
     if (error) {
       loginError.textContent = 'פרטים שגויים — נסה שוב';
       loginBtn.disabled = false;
+      loginBtn.textContent = 'כניסה';
     }
+  });
+
+  document.getElementById('loginPass').addEventListener('keydown', e => {
+    if (e.key === 'Enter') loginBtn.click();
   });
 
   logoutBtn.addEventListener('click', async () => {
@@ -346,6 +575,7 @@
   const adminHourGrid     = document.getElementById('adminHourGrid');
   const adminStatus       = document.getElementById('adminStatus');
   const blockedListEl     = document.getElementById('blockedList');
+  const fetchErrorBanner  = document.getElementById('fetchErrorBanner');
 
   function setStatus(msg, type = '') {
     adminStatus.textContent = msg;
@@ -353,12 +583,33 @@
     if (msg) setTimeout(() => { adminStatus.textContent = ''; }, 3000);
   }
 
+  function updateStats() {
+    const fullDays  = new Set(blockedSlots.filter(s => s.start_hour == null).map(s => s.date));
+    const hourSlots = blockedSlots.filter(s => s.start_hour != null);
+    const totalHours = hourSlots.reduce((acc, s) => acc + (s.end_hour - s.start_hour), 0);
+
+    document.getElementById('statBlockedDays').textContent  = fullDays.size;
+    document.getElementById('statBlockedHours').textContent = totalHours;
+    document.getElementById('statTotalSlots').textContent   = blockedSlots.length;
+  }
+
   async function loadAdminMonth(year, month) {
     calYear = year; calMonth = month;
-    adminCalContainer.innerHTML = '<div class="cal-loading">טוען...</div>';
-    blockedSlots = await fetchBlockedSlots(year, month);
+    adminCalContainer.innerHTML = '<div class="skeleton skeleton-cal"></div>';
+    fetchErrorBanner.classList.remove('visible');
+
+    const result = await fetchBlockedSlots(year, month);
+
+    if (result && result.error) {
+      fetchErrorBanner.classList.add('visible');
+      blockedSlots = [];
+    } else {
+      blockedSlots = result;
+    }
+
     renderAdminCal();
     renderBlockedList();
+    updateStats();
   }
 
   function renderAdminCal() {
@@ -384,10 +635,10 @@
       const full  = isDayFullyBlocked(blockedSlots, ds);
       const isSel = ds === selectedDate;
       let cls = 'cal-cell';
-      if (past)   cls += ' cal-disabled';
-      else if (isSel) cls += ' cal-selected-admin';
-      else if (full)  cls += ' cal-blocked-admin';
-      else            cls += ' cal-available';
+      if (past)        cls += ' cal-disabled';
+      else if (isSel)  cls += ' cal-selected-admin';
+      else if (full)   cls += ' cal-blocked-admin';
+      else             cls += ' cal-available';
       html += `<div class="${cls}" data-date="${ds}">${day}</div>`;
     }
     html += `</div>`;
@@ -438,9 +689,15 @@
   }
 
   async function blockHour(dateStr, hour) {
+    const blockedHrs = getBlockedHoursForDay(blockedSlots, dateStr);
+    if (blockedHrs.has(hour)) {
+      setStatus(`${hour}:00 כבר חסום`, 'err');
+      return;
+    }
     const { error } = await supabase.from('blocked_slots').insert({ date: dateStr, start_hour: hour, end_hour: hour + 1 });
     if (error) { setStatus('שגיאה: ' + error.message, 'err'); return; }
     setStatus(`✅ ${hour}:00 נחסם`, 'ok');
+    invalidateCache(calYear, calMonth);
     await refreshData();
   }
 
@@ -451,31 +708,53 @@
       .eq('start_hour', hour);
     if (error) { setStatus('שגיאה: ' + error.message, 'err'); return; }
     setStatus(`✅ ${hour}:00 שוחרר`, 'ok');
+    invalidateCache(calYear, calMonth);
     await refreshData();
   }
 
   document.getElementById('blockDayBtn').addEventListener('click', async () => {
     if (!selectedDate) return;
+    const confirmed = await showConfirm(
+      '🔴 חסימת יום שלם',
+      `האם לסמן את ${formatDateHebrew(selectedDate)} כתפוס במלואו? פעולה זו תמחק את כל החסימות השעתיות ביום זה.`
+    );
+    if (!confirmed) return;
+
     await supabase.from('blocked_slots').delete().eq('date', selectedDate);
     const { error } = await supabase.from('blocked_slots').insert({ date: selectedDate, start_hour: null, end_hour: null });
     if (error) { setStatus('שגיאה: ' + error.message, 'err'); return; }
     setStatus('🔴 היום כולו נחסם', 'ok');
+    invalidateCache(calYear, calMonth);
     await refreshData();
   });
 
   document.getElementById('unblockDayBtn').addEventListener('click', async () => {
     if (!selectedDate) return;
+    const confirmed = await showConfirm(
+      '✅ שחרור יום',
+      `האם לשחרר את כל החסימות של ${formatDateHebrew(selectedDate)}?`
+    );
+    if (!confirmed) return;
+
     const { error } = await supabase.from('blocked_slots').delete().eq('date', selectedDate);
     if (error) { setStatus('שגיאה: ' + error.message, 'err'); return; }
     setStatus('✅ כל היום שוחרר', 'ok');
+    invalidateCache(calYear, calMonth);
     await refreshData();
   });
 
   async function refreshData() {
     blockedSlots = await fetchBlockedSlots(calYear, calMonth);
+    if (blockedSlots && blockedSlots.error) {
+      fetchErrorBanner.classList.add('visible');
+      blockedSlots = [];
+    } else {
+      fetchErrorBanner.classList.remove('visible');
+    }
     renderAdminCal();
     if (selectedDate) renderAdminHours(selectedDate);
     renderBlockedList();
+    updateStats();
   }
 
   function renderBlockedList() {
@@ -498,6 +777,7 @@
     blockedListEl.querySelectorAll('button[data-id]').forEach(btn => {
       btn.addEventListener('click', async () => {
         await supabase.from('blocked_slots').delete().eq('id', btn.dataset.id);
+        invalidateCache(calYear, calMonth);
         await refreshData();
       });
     });
