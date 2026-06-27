@@ -1005,6 +1005,66 @@
       z-index: 3;
     }
 
+    /* ── Stats Bar ── */
+    .stats-bar {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0;
+      margin-bottom: 2rem;
+      border-radius: 16px;
+      overflow: hidden;
+      border: 1px solid rgba(249,115,22,0.25);
+      box-shadow: 0 12px 40px rgba(0,0,0,0.5);
+    }
+    .stat-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      padding: 2rem 1rem;
+      background: rgba(13,15,20,0.85);
+      position: relative;
+      transition: background 0.3s;
+    }
+    .stat-item:not(:last-child)::after {
+      content: '';
+      position: absolute;
+      right: 0; top: 20%; bottom: 20%;
+      width: 1px;
+      background: rgba(249,115,22,0.2);
+    }
+    .stat-item:hover { background: rgba(249,115,22,0.07); }
+    .stat-icon {
+      width: 36px; height: 36px;
+      color: var(--orange);
+    }
+    .stat-icon svg { width: 100%; height: 100%; }
+    .stat-number {
+      font-family: var(--font-tech);
+      font-size: 2.6rem;
+      font-weight: 800;
+      color: #fff;
+      line-height: 1;
+      letter-spacing: -1px;
+    }
+    .stat-number .stat-suffix {
+      color: var(--orange);
+      font-size: 2rem;
+    }
+    .stat-label {
+      font-size: 0.82rem;
+      color: rgba(255,255,255,0.5);
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      font-family: var(--font-tech);
+      text-align: center;
+    }
+    @media (max-width: 640px) {
+      .stats-bar { grid-template-columns: repeat(2, 1fr); }
+      .stat-item:nth-child(2)::after { display: none; }
+    }
+
     .gallery-video {
       position: relative;
       width: 100%;
@@ -1714,9 +1774,27 @@
   <!-- ============ GALLERY ============ -->
   <section class="block gallery-section" id="gallery">
     <div class="container">
-      <div class="gallery-video">
-        <img src="videos/tank-rc.gif" alt="BOOM TANK Live Footage" style="width:100%;display:block;border-radius:14px;">
-        <span class="gallery-video-tag">// LIVE FOOTAGE</span>
+      <div class="stats-bar" id="statsBar">
+        <div class="stat-item">
+          <span class="stat-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></span>
+          <div class="stat-number"><span class="stat-val" data-target="500" data-suffix="+">0</span><span class="stat-suffix">+</span></div>
+          <div class="stat-label">אירועים</div>
+        </div>
+        <div class="stat-item">
+          <span class="stat-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span>
+          <div class="stat-number"><span class="stat-val" data-target="12">0</span></div>
+          <div class="stat-label">טנקים בו-זמנית</div>
+        </div>
+        <div class="stat-item">
+          <span class="stat-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></span>
+          <div class="stat-number"><span class="stat-val" data-target="60">0</span><span class="stat-suffix">+</span></div>
+          <div class="stat-label">דקות כיף</div>
+        </div>
+        <div class="stat-item">
+          <span class="stat-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></span>
+          <div class="stat-number"><span class="stat-val" data-target="100">0</span><span class="stat-suffix">%</span></div>
+          <div class="stat-label">מגיעים אליכם</div>
+        </div>
       </div>
 
       <div class="gallery-mosaic">
@@ -2319,6 +2397,39 @@
       vid.addEventListener('play',  () => { playIcon.innerHTML = PAUSE_ICON; });
       vid.addEventListener('pause', () => { playIcon.innerHTML = PLAY_ICON; });
     }
+  </script>
+
+  <script>
+    /* ── Stats count-up on scroll into view ── */
+    (function () {
+      const bar = document.getElementById('statsBar');
+      if (!bar) return;
+
+      function countUp(el, target, duration) {
+        const start = performance.now();
+        function step(now) {
+          const progress = Math.min((now - start) / duration, 1);
+          const eased = 1 - Math.pow(1 - progress, 3);
+          el.textContent = Math.floor(eased * target);
+          if (progress < 1) requestAnimationFrame(step);
+          else el.textContent = target;
+        }
+        requestAnimationFrame(step);
+      }
+
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (!entry.isIntersecting) return;
+          observer.disconnect();
+          bar.querySelectorAll('.stat-val').forEach(el => {
+            const target = parseInt(el.dataset.target, 10);
+            countUp(el, target, 1600);
+          });
+        });
+      }, { threshold: 0.3 });
+
+      observer.observe(bar);
+    })();
   </script>
 
 </body>
